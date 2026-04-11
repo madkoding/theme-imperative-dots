@@ -21,6 +21,49 @@ NETWORK_MODE_FILE="/tmp/qs_network_mode"
 PREV_FOCUS_FILE="/tmp/qs_prev_focus"
 SWITCHER_ACTIVE_FILE="/tmp/qs_switcher_active"
 
+hydrate_from_systemd_env() {
+    local key="$1"
+    local current="${!key:-}"
+
+    if [[ -n "$current" ]]; then
+        return 0
+    fi
+
+    local value=""
+    value="$(systemctl --user show-environment 2>/dev/null | awk -F= -v k="$key" '$1==k {print $2; exit}')"
+    if [[ -n "$value" ]]; then
+        export "$key=$value"
+    fi
+}
+
+hydrate_runtime_env() {
+    hydrate_from_systemd_env "XDG_RUNTIME_DIR"
+    hydrate_from_systemd_env "DISPLAY"
+    hydrate_from_systemd_env "WAYLAND_DISPLAY"
+    hydrate_from_systemd_env "HYPRLAND_INSTANCE_SIGNATURE"
+    hydrate_from_systemd_env "XDG_CURRENT_DESKTOP"
+
+    if [[ -z "${XDG_RUNTIME_DIR:-}" ]]; then
+        export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+    fi
+
+    if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+        if [[ -S "${XDG_RUNTIME_DIR}/wayland-1" ]]; then
+            export WAYLAND_DISPLAY="wayland-1"
+        elif [[ -S "${XDG_RUNTIME_DIR}/wayland-0" ]]; then
+            export WAYLAND_DISPLAY="wayland-0"
+        fi
+    fi
+
+    if [[ -z "${XDG_CURRENT_DESKTOP:-}" ]]; then
+        export XDG_CURRENT_DESKTOP="Hyprland"
+    fi
+
+    export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
+}
+
+hydrate_runtime_env
+
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
 SESSION_ID="${HYPRLAND_INSTANCE_SIGNATURE:-$(id -u)}"
 QS_STATE_DIR="${RUNTIME_DIR}/mados-quickshell-${SESSION_ID}"
