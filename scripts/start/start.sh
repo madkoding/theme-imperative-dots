@@ -53,8 +53,10 @@ prepare_user_runtime() {
     mkdir -p "${XDG_CONF_HOME}/imperative-dots"
 
     if [[ -e "${TARGET_HYPR_SCRIPTS}" && ! -f "${OWNERSHIP_MARKER}" ]]; then
-        log_warn "Refusing to override existing ${TARGET_HYPR_SCRIPTS}"
-        return 1
+        local backup_dir="${XDG_CONF_HOME}/imperative-dots/hypr-scripts-backup-$(date +%Y%m%d-%H%M%S)"
+        log_warn "Found existing ${TARGET_HYPR_SCRIPTS} without ownership marker; backing up to ${backup_dir}"
+        mkdir -p "$(dirname "${backup_dir}")"
+        cp -a "${TARGET_HYPR_SCRIPTS}" "${backup_dir}"
     fi
 
     mkdir -p "${XDG_CONF_HOME}/hypr"
@@ -83,6 +85,33 @@ prepare_user_runtime() {
     mkdir -p "${TARGET_FOOT}"
     if [[ -f "${THEME_FOOT}/foot.ini" ]]; then
         cp -a "${THEME_FOOT}/foot.ini" "${TARGET_FOOT}/foot.ini"
+    fi
+
+    if [[ ! -f "/tmp/foot-matugen-colors.ini" ]]; then
+        cat > "/tmp/foot-matugen-colors.ini" <<'EOF'
+[colors-dark]
+alpha=0.95
+foreground=D8DEE9
+background=2E3440
+selection-foreground=D8DEE9
+selection-background=4C566A
+regular0=3B4252
+regular1=BF616A
+regular2=A3BE8C
+regular3=EBCB8B
+regular4=81A1C1
+regular5=B48EAD
+regular6=88C0D0
+regular7=E5E9F0
+bright0=4C566A
+bright1=BF616A
+bright2=A3BE8C
+bright3=EBCB8B
+bright4=81A1C1
+bright5=B48EAD
+bright6=8FBCBB
+bright7=ECEFF4
+EOF
     fi
 
     mkdir -p "${XDG_CONF_HOME}/gtk-3.0" "${XDG_CONF_HOME}/gtk-4.0" "${XDG_CONF_HOME}/qt5ct/colors" "${XDG_CONF_HOME}/qt6ct/colors" "${XDG_CONF_HOME}/mako"
