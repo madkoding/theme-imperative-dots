@@ -65,8 +65,7 @@ hydrate_runtime_env() {
 hydrate_runtime_env
 
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
-SESSION_ID="${HYPRLAND_INSTANCE_SIGNATURE:-$(id -u)}"
-QS_STATE_DIR="${RUNTIME_DIR}/mados-quickshell-${SESSION_ID}"
+QS_STATE_DIR="${RUNTIME_DIR}/mados-quickshell"
 mkdir -p "$QS_STATE_DIR"
 
 IPC_FILE="${QS_IPC_FILE:-${QS_STATE_DIR}/qs_widget_state}"

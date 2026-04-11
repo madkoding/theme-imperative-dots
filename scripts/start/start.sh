@@ -199,8 +199,7 @@ EOF
 
 seed_runtime_state() {
     local runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
-    local session_id="${HYPRLAND_INSTANCE_SIGNATURE:-$(id -u)}"
-    local state_dir="${runtime_dir}/mados-quickshell-${session_id}"
+    local state_dir="${runtime_dir}/mados-quickshell"
 
     mkdir -p "${HOME}/.cache/quickshell/weather"
     mkdir -p "${HOME}/.cache/wallpaper_picker/thumbs"
