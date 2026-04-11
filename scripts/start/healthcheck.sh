@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+QS_ROOT="${HOME}/.config/quickshell"
+
+if [[ ! -f "${QS_ROOT}/notifications/NotificationPopup.qml" ]]; then
+    exit 1
+fi
+
+if [[ ! -f "${QS_ROOT}/i18n/I18n.qml" ]]; then
+    exit 1
+fi
+
 if ! pgrep -f "quickshell.*Main.qml" >/dev/null 2>&1; then
     exit 1
 fi
