@@ -35,18 +35,46 @@ require_cmd() {
     fi
 }
 
+require_cmd_soft() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        log_warn "Optional command not found: $1"
+    fi
+}
+
 ensure_hyprland_session() {
     if [[ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
         log_warn "Not running under Hyprland session"
         return 1
     fi
 
-    if ! hyprctl monitors >/dev/null 2>&1; then
-        log_warn "Hyprland control socket is not available"
-        return 1
-    fi
+    local attempt=1
+    local max_attempts=20
+    while [[ "${attempt}" -le "${max_attempts}" ]]; do
+        if hyprctl monitors >/dev/null 2>&1; then
+            return 0
+        fi
+        sleep 0.25
+        attempt=$((attempt + 1))
+    done
 
-    return 0
+    log_warn "Hyprland control socket is not available after ${max_attempts} attempts"
+    return 1
+
+}
+
+wait_for_quickshell_procs() {
+    local attempt=1
+    local max_attempts=12
+    while [[ "${attempt}" -le "${max_attempts}" ]]; do
+        if pgrep -f "quickshell.*Main.qml" >/dev/null 2>&1 && pgrep -f "quickshell.*TopBar.qml" >/dev/null 2>&1; then
+            return 0
+        fi
+        sleep 0.25
+        attempt=$((attempt + 1))
+    done
+
+    log_warn "Quickshell processes did not become ready in time"
+    return 1
 }
 
 prepare_user_runtime() {
@@ -238,14 +266,14 @@ launch_quickshell() {
         "${TARGET_HYPR_SCRIPTS}/init.sh" >/dev/null 2>&1 &
     fi
 
-    return 0
+    wait_for_quickshell_procs
 }
 
 main() {
     require_cmd quickshell
     require_cmd hyprctl
-    require_cmd jq
-    require_cmd nmcli
+    require_cmd_soft jq
+    require_cmd_soft nmcli
     ensure_hyprland_session
     prepare_user_runtime
     seed_runtime_state
