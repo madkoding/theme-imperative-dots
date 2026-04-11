@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v rofi >/dev/null 2>&1; then
+    exit 0
+fi
+
+if ! command -v powerprofilesctl >/dev/null 2>&1; then
+    notify-send "System Power" "powerprofilesctl not available"
+    exit 1
+fi
 
 # --- 1. Toggle Logic ---
 if pgrep -x "rofi" > /dev/null; then
@@ -113,7 +123,7 @@ OPT_SAVE="<span font='16px' weight='bold' color='#a6e3a1'>${ICO_SAVE}</span>   <
 OPTIONS="$OPT_PERF\n$OPT_BAL\n$OPT_SAVE"
 
 # --- 5. Launch ---
-CHOICE=$(echo -e "$OPTIONS" | rofi -dmenu \
+CHOICE=$(printf "%b\n" "$OPTIONS" | rofi -dmenu \
     -markup-rows \
     -p "Current: ${CURRENT^}" \
     -config /dev/null \
