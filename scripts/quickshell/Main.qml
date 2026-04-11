@@ -311,6 +311,7 @@ FloatingWindow {
                 }
 
                 if (cmd === "close") {
+                    notificationPopup.centerOpen = false;
                     switchWidget("hidden", "");
                 } else if (cmd === "notifications") {
                     if (arg === "dismiss" || arg === "clear") {

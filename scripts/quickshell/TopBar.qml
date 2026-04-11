@@ -104,6 +104,11 @@ PanelWindow {
     
     ListModel { id: workspacesModel }
     property int workspaceSlots: 6
+    property string lastActiveWorkspaceId: ""
+
+    function closeTopbarPopupsOnWorkspaceChange() {
+        Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh close all keepfocus"]);
+    }
 
     function ensureWorkspaceDefaults() {
         if (workspacesModel.count === workspaceSlots) {
@@ -160,6 +165,22 @@ PanelWindow {
                             ensureWorkspaceDefaults();
                             return;
                         }
+
+                        let detectedActiveWs = "";
+                        for (let i = 0; i < newData.length; i++) {
+                            if (newData[i].state === "active") {
+                                detectedActiveWs = newData[i].id.toString();
+                                break;
+                            }
+                        }
+
+                        if (detectedActiveWs !== "") {
+                            if (barWindow.lastActiveWorkspaceId !== "" && barWindow.lastActiveWorkspaceId !== detectedActiveWs) {
+                                barWindow.closeTopbarPopupsOnWorkspaceChange();
+                            }
+                            barWindow.lastActiveWorkspaceId = detectedActiveWs;
+                        }
+
                         if (workspacesModel.count !== newData.length) {
                             workspacesModel.clear();
                             for (let i = 0; i < newData.length; i++) {
@@ -583,7 +604,10 @@ PanelWindow {
                                 id: wsPillMouse
                                 hoverEnabled: true
                                 anchors.fill: parent
-                                onClicked: Quickshell.execDetached(["bash", "-c", "hyprctl dispatch workspace " + wsName])
+                                onClicked: {
+                                    barWindow.closeTopbarPopupsOnWorkspaceChange();
+                                    Quickshell.execDetached(["bash", "-c", "hyprctl dispatch workspace " + wsName]);
+                                }
                             }
                         }
                     }
