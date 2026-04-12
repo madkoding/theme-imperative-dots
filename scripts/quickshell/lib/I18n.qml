@@ -117,11 +117,20 @@ QtObject {
         "Close Active Window/Widget": {
             "es": "Close Active Window/Widget", "en": "Close Active Window/Widget", "fr": "Close Active Window/Widget", "de": "Close Active Window/Widget", "it": "Close Active Window/Widget", "pt": "Close Active Window/Widget", "ru": "Close Active Window/Widget", "ja": "Close Active Window/Widget", "zh": "Close Active Window/Widget"
         },
+        "Configuration": {
+            "es": "Configuration", "en": "Configuration", "fr": "Configuration", "de": "Configuration", "it": "Configuration", "pt": "Configuration", "ru": "Configuration", "ja": "Configuration", "zh": "Configuration"
+        },
         "Imperative": {
             "es": "Imperative", "en": "Imperative", "fr": "Imperative", "de": "Imperative", "it": "Imperative", "pt": "Imperative", "ru": "Imperative", "ja": "Imperative", "zh": "Imperative"
         },
         "Imperative System Theme": {
             "es": "Imperative System Theme", "en": "Imperative System Theme", "fr": "Imperative System Theme", "de": "Imperative System Theme", "it": "Imperative System Theme", "pt": "Imperative System Theme", "ru": "Imperative System Theme", "ja": "Imperative System Theme", "zh": "Imperative System Theme"
+        },
+        "Original theme: ImperativeDots (ilyamiro)": {
+            "es": "Original theme: ImperativeDots (ilyamiro)", "en": "Original theme: ImperativeDots (ilyamiro)", "fr": "Original theme: ImperativeDots (ilyamiro)", "de": "Original theme: ImperativeDots (ilyamiro)", "it": "Original theme: ImperativeDots (ilyamiro)", "pt": "Original theme: ImperativeDots (ilyamiro)", "ru": "Original theme: ImperativeDots (ilyamiro)", "ja": "Original theme: ImperativeDots (ilyamiro)", "zh": "Original theme: ImperativeDots (ilyamiro)"
+        },
+        "Fork with custom modifications": {
+            "es": "Fork with custom modifications", "en": "Fork with custom modifications", "fr": "Fork with custom modifications", "de": "Fork with custom modifications", "it": "Fork with custom modifications", "pt": "Fork with custom modifications", "ru": "Fork with custom modifications", "ja": "Fork with custom modifications", "zh": "Fork with custom modifications"
         },
         "Interactive Modules": {
             "es": "Interactive Modules", "en": "Interactive Modules", "fr": "Interactive Modules", "de": "Interactive Modules", "it": "Interactive Modules", "pt": "Interactive Modules", "ru": "Interactive Modules", "ja": "Interactive Modules", "zh": "Interactive Modules"
@@ -223,7 +232,10 @@ QtObject {
             "es": "Toggle Notifications", "en": "Toggle Notifications", "fr": "Toggle Notifications", "de": "Toggle Notifications", "it": "Toggle Notifications", "pt": "Toggle Notifications", "ru": "Toggle Notifications", "ja": "Toggle Notifications", "zh": "Toggle Notifications"
         },
         "Toggle Stewart AI": {
-            "es": "Toggle Stewart AI", "en": "Toggle Stewart AI", "fr": "Toggle Stewart AI", "de": "Toggle Stewart AI", "it": "Toggle Stewart AI", "pt": "Toggle Stewart AI", "ru": "Toggle Stewart AI", "ja": "Toggle Stewart AI", "zh": "Toggle Stewart AI"
+            "es": "Toggle KosMos AI", "en": "Toggle KosMos AI", "fr": "Toggle KosMos AI", "de": "Toggle KosMos AI", "it": "Toggle KosMos AI", "pt": "Toggle KosMos AI", "ru": "Toggle KosMos AI", "ja": "Toggle KosMos AI", "zh": "Toggle KosMos AI"
+        },
+        "Toggle KosMos AI": {
+            "es": "Toggle KosMos AI", "en": "Toggle KosMos AI", "fr": "Toggle KosMos AI", "de": "Toggle KosMos AI", "it": "Toggle KosMos AI", "pt": "Toggle KosMos AI", "ru": "Toggle KosMos AI", "ja": "Toggle KosMos AI", "zh": "Toggle KosMos AI"
         },
         "Toggle Volume Widget": {
             "es": "Toggle Volume Widget", "en": "Toggle Volume Widget", "fr": "Toggle Volume Widget", "de": "Toggle Volume Widget", "it": "Toggle Volume Widget", "pt": "Toggle Volume Widget", "ru": "Toggle Volume Widget", "ja": "Toggle Volume Widget", "zh": "Toggle Volume Widget"
@@ -277,7 +289,10 @@ QtObject {
             "es": "Gestion rapida de pantallas.", "en": "Quick display management.", "fr": "Quick display management.", "de": "Quick display management.", "it": "Quick display management.", "pt": "Quick display management.", "ru": "Quick display management.", "ja": "Quick display management.", "zh": "Quick display management."
         },
         "Stewart AI": {
-            "es": "Stewart AI", "en": "Stewart AI", "fr": "Stewart AI", "de": "Stewart AI", "it": "Stewart AI", "pt": "Stewart AI", "ru": "Stewart AI", "ja": "Stewart AI", "zh": "Stewart AI"
+            "es": "KosMos AI", "en": "KosMos AI", "fr": "KosMos AI", "de": "KosMos AI", "it": "KosMos AI", "pt": "KosMos AI", "ru": "KosMos AI", "ja": "KosMos AI", "zh": "KosMos AI"
+        },
+        "KosMos AI": {
+            "es": "KosMos AI", "en": "KosMos AI", "fr": "KosMos AI", "de": "KosMos AI", "it": "KosMos AI", "pt": "KosMos AI", "ru": "KosMos AI", "ja": "KosMos AI", "zh": "KosMos AI"
         },
         "Theme Engine": {
             "es": "Motor de Temas", "en": "Theme Engine", "fr": "Theme Engine", "de": "Theme Engine", "it": "Theme Engine", "pt": "Theme Engine", "ru": "Theme Engine", "ja": "Theme Engine", "zh": "Theme Engine"

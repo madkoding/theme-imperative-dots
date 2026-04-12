@@ -13,6 +13,8 @@ function getLayout(name, mx, my, mw, mh, scale) {
     const calendarH = s(750, ui);
     const stewartW = s(800, ui);
     const stewartH = s(600, ui);
+    const iaW = s(920, ui);
+    const iaH = s(680, ui);
     const monitorsW = s(850, ui);
     const monitorsH = s(580, ui);
     const focustimeW = s(900, ui);
@@ -40,6 +42,7 @@ function getLayout(name, mx, my, mw, mh, scale) {
         
         // Centered both horizontally and vertically
         "stewart":   { w: stewartW, h: stewartH, rx: Math.floor((mw / 2) - (stewartW / 2)), ry: Math.floor((mh / 2) - (stewartH / 2)), comp: "widgets/stewart/stewart.qml" },
+        "ia":        { w: iaW, h: iaH, rx: Math.floor((mw / 2) - (iaW / 2)), ry: Math.floor((mh / 2) - (iaH / 2)), comp: "widgets/ia/IAPopup.qml" },
         "monitors":  { w: monitorsW, h: monitorsH, rx: Math.floor((mw / 2) - (monitorsW / 2)), ry: Math.floor((mh / 2) - (monitorsH / 2)), comp: "widgets/monitors/MonitorPopup.qml" },
         "focustime": { w: focustimeW, h: focustimeH, rx: Math.floor((mw / 2) - (focustimeW / 2)), ry: Math.floor((mh / 2) - (focustimeH / 2)), comp: "widgets/focustime/FocusTimePopup.qml" },
         

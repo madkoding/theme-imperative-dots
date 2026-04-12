@@ -104,7 +104,7 @@ Item {
             { k1: "SUPER", k2: "V", action: I18n.s("Toggle Volume Widget"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle volume" },
             { k1: "SUPER", k2: "M", action: I18n.s("Toggle Monitors Widget"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle monitors" },
             { k1: "SUPER+SHIFT", k2: "T", action: I18n.s("Toggle FocusTime"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle focustime" },
-            { k1: "SUPER+SHIFT", k2: "S", action: I18n.s("Toggle Stewart AI"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle stewart" },
+            { k1: "SUPER+SHIFT", k2: "S", action: I18n.s("Toggle KosMos AI"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle ia" },
             { k1: "SUPER", k2: "A", action: I18n.s("Toggle Notifications"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle notifications" },
 
             { k1: "SUPER", k2: "SPACE", action: I18n.s("Play/Pause Media"), cmd: "playerctl play-pause" },
@@ -232,7 +232,7 @@ Item {
                         ColumnLayout {
                             Layout.alignment: Qt.AlignVCenter
                             spacing: 2
-                            Text { text: I18n.s("Imperative"); font.family: "Michroma"; font.weight: Font.Black; font.pixelSize: 15; color: root.text; Layout.alignment: Qt.AlignLeft }
+                            Text { text: I18n.s("Configuration"); font.family: "Michroma"; font.weight: Font.Black; font.pixelSize: 15; color: root.text; Layout.alignment: Qt.AlignLeft }
                             Text { text: "v1.0.4"; font.family: "Michroma"; font.pixelSize: 11; color: root.subtext0; Layout.alignment: Qt.AlignLeft }
                         }
                     }
@@ -444,8 +444,8 @@ Item {
                                     ColumnLayout {
                                         Layout.alignment: Qt.AlignVCenter
                                         spacing: 1
-                                        Text { text: I18n.s("Imperative System Theme"); font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0; font.weight: Font.Medium }
-                                        Text { text: "ilyamiro"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: root.mauve }
+                                        Text { text: I18n.s("Original theme: ImperativeDots (ilyamiro)"); font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0; font.weight: Font.Medium }
+                                        Text { text: I18n.s("Fork with custom modifications"); font.family: "Michroma"; font.pixelSize: 12; font.weight: Font.Black; color: root.mauve }
                                     }
 
                                     Item { Layout.fillWidth: true }
@@ -596,7 +596,7 @@ Item {
                     ListElement { title: "Wallpaper Picker"; target: "wallpaper"; icon: ""; desc: "skwd-wall selector with awww,\nMatugen, and Wallhaven.cc." }
                     ListElement { title: "SKWD Launcher"; target: "launcher"; icon: "󰣆"; desc: "Parallelogram app launcher \nwith frequency + recency ranking." }
                     ListElement { title: "Monitors"; target: "monitors"; icon: "󰍹"; desc: "Quick display management." }
-                    ListElement { title: "Stewart AI"; target: "stewart"; icon: "󰚩"; desc: "Voice assistant integration.\n(Reserved for future, currently disabled)" }
+                    ListElement { title: "KosMos AI"; target: "ia"; icon: "󰚩"; desc: "Voice assistant integration.\n(Reserved for future, currently disabled)" }
                 }
 
                 Component.onCompleted: {
