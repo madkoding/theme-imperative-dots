@@ -218,35 +218,38 @@ fi
 
 # -----------------------------------------------------------------------------
 # ENSURE MASTER WINDOW & TOP BAR ARE ALIVE (ZOMBIE WATCHDOG)
+# Skip this for close actions so a close request cannot relaunch an empty popup.
 # -----------------------------------------------------------------------------
-MAIN_QML_PATH="$HOME/.config/quickshell/Main.qml"
-BAR_QML_PATH="$HOME/.config/quickshell/TopBar.qml"
+if [[ "$ACTION" != "close" ]]; then
+    MAIN_QML_PATH="$HOME/.config/quickshell/Main.qml"
+    BAR_QML_PATH="$HOME/.config/quickshell/TopBar.qml"
 
-QS_PID=$(pgrep -f "quickshell.*Main\.qml")
-WIN_EXISTS=$(hyprctl clients -j | grep "qs-master")
-BAR_PID=$(pgrep -f "quickshell.*TopBar\.qml")
+    QS_PID=$(pgrep -f "quickshell.*Main\.qml")
+    WIN_EXISTS=$(hyprctl clients -j | grep "qs-master")
+    BAR_PID=$(pgrep -f "quickshell.*TopBar\.qml")
 
-if [[ -z "$QS_PID" ]] || [[ -z "$WIN_EXISTS" ]]; then
-    if [[ -n "$QS_PID" ]]; then
-        kill -9 $QS_PID 2>/dev/null
-    fi
-    
-    # Bypass NixOS symlink resolution by using the direct ~/.config path
-    quickshell -p "$MAIN_QML_PATH" >/dev/null 2>&1 &
-    disown
-    
-    for _ in {1..20}; do
-        if hyprctl clients -j | grep -q "qs-master"; then
-            sleep 0.1
-            break
+    if [[ -z "$QS_PID" ]] || [[ -z "$WIN_EXISTS" ]]; then
+        if [[ -n "$QS_PID" ]]; then
+            kill -9 $QS_PID 2>/dev/null
         fi
-        sleep 0.05
-    done
-fi
 
-if [[ -z "$BAR_PID" ]]; then
-    quickshell -p "$BAR_QML_PATH" >/dev/null 2>&1 &
-    disown
+        # Bypass NixOS symlink resolution by using the direct ~/.config path
+        quickshell -p "$MAIN_QML_PATH" >/dev/null 2>&1 &
+        disown
+
+        for _ in {1..20}; do
+            if hyprctl clients -j | grep -q "qs-master"; then
+                sleep 0.1
+                break
+            fi
+            sleep 0.05
+        done
+    fi
+
+    if [[ -z "$BAR_PID" ]]; then
+        quickshell -p "$BAR_QML_PATH" >/dev/null 2>&1 &
+        disown
+    fi
 fi
 
 # -----------------------------------------------------------------------------
