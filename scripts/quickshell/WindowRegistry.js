@@ -36,7 +36,7 @@ function getLayout(name, mx, my, mw, mh, scale) {
         "music":     { w: s(700, ui), h: s(620, ui), rx: s(12, ui), ry: s(70, ui), comp: "widgets/music/MusicPopup.qml" },
         
         // Right-aligned: pinned 20px from the right edge dynamically
-        "network":   { w: s(900, ui), h: s(700, ui), rx: mw - s(920, ui), ry: s(70, ui), comp: "widgets/network/NetworkPopupAlt.qml" },
+        "network":   { w: s(900, ui), h: s(700, ui), rx: mw - s(920, ui), ry: s(70, ui), comp: "widgets/network/NetworkPopup.qml" },
         
         // Centered both horizontally and vertically
         "stewart":   { w: stewartW, h: stewartH, rx: Math.floor((mw / 2) - (stewartW / 2)), ry: Math.floor((mh / 2) - (stewartH / 2)), comp: "widgets/stewart/stewart.qml" },
