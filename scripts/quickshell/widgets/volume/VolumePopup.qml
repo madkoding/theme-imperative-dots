@@ -51,7 +51,7 @@ Item {
     // -------------------------------------------------------------------------
     // STATE & CONFIG
     // -------------------------------------------------------------------------
-    readonly property string scriptsDir: Quickshell.env("HOME") + "/.config/quickshell/volume"
+    readonly property string scriptsDir: Quickshell.env("HOME") + "/.config/quickshell/widgets/volume"
     
     property string activeTab: "outputs" // outputs, inputs, apps
     onActiveTabChanged: updateHeroData()

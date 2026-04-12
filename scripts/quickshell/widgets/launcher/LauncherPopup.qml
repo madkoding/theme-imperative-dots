@@ -19,13 +19,13 @@ Item {
     property var freqData: ({})
     property var configData: defaultConfig()
 
-    readonly property string launcherScriptPath: Quickshell.env("HOME") + "/.config/quickshell/launcher/list_apps.py"
-    readonly property string launcherIpcScriptPath: Quickshell.env("HOME") + "/.config/quickshell/launcher/launcher_ipc.py"
-    readonly property string launcherDaemonScriptPath: Quickshell.env("HOME") + "/.config/quickshell/launcher/launcher_cache_daemon.py"
-    readonly property string frequencyScriptPath: Quickshell.env("HOME") + "/.config/quickshell/launcher/record_frequency.py"
-    readonly property string stateScriptPath: Quickshell.env("HOME") + "/.config/quickshell/launcher/update_state.py"
-    readonly property string launcherConfigPath: Quickshell.env("HOME") + "/.config/quickshell/launcher/config.json"
-    readonly property string hiddenAppsConfigPath: Quickshell.env("HOME") + "/.config/quickshell/launcher/hidden-apps.json"
+    readonly property string launcherScriptPath: Quickshell.env("HOME") + "/.config/quickshell/widgets/launcher/list_apps.py"
+    readonly property string launcherIpcScriptPath: Quickshell.env("HOME") + "/.config/quickshell/widgets/launcher/launcher_ipc.py"
+    readonly property string launcherDaemonScriptPath: Quickshell.env("HOME") + "/.config/quickshell/widgets/launcher/launcher_cache_daemon.py"
+    readonly property string frequencyScriptPath: Quickshell.env("HOME") + "/.config/quickshell/widgets/launcher/record_frequency.py"
+    readonly property string stateScriptPath: Quickshell.env("HOME") + "/.config/quickshell/widgets/launcher/update_state.py"
+    readonly property string launcherConfigPath: Quickshell.env("HOME") + "/.config/quickshell/widgets/launcher/config.json"
+    readonly property string hiddenAppsConfigPath: Quickshell.env("HOME") + "/.config/quickshell/widgets/launcher/hidden-apps.json"
     readonly property string launcherCacheDir: Quickshell.env("HOME") + "/.cache/quickshell/launcher"
     readonly property string frequencyFilePath: launcherCacheDir + "/freq.json"
     readonly property string stateFilePath: launcherCacheDir + "/state.json"

@@ -95,7 +95,7 @@ Item {
     readonly property color maroon: _theme.maroon
     readonly property color peach: _theme.peach
 
-    readonly property string scriptsDir: Quickshell.env("HOME") + "/.config/quickshell/network"
+    readonly property string scriptsDir: Quickshell.env("HOME") + "/.config/quickshell/widgets/network"
     
     // Abstracted accents. Dialed down from 1.4 to 1.15 to prevent the RGB channels 
     // from blowing out to pure #FFFFFF while still staying distinct and bright.

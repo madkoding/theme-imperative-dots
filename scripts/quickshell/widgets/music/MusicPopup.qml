@@ -240,7 +240,7 @@ Item {
             root.lastEqUpdate = Date.now(); 
             
             root.triggerEqLightning();
-            execCmd(`$HOME/.config/quickshell/music/equalizer.sh preset ${presetName}`);
+            execCmd(`$HOME/.config/quickshell/widgets/music/equalizer.sh preset ${presetName}`);
         }
     }
 
@@ -271,7 +271,7 @@ Item {
     Process {
         id: musicProc
         running: true
-        command: ["bash", "-c", "$HOME/.config/quickshell/music/music_info.sh"]
+        command: ["bash", "-c", "$HOME/.config/quickshell/widgets/music/music_info.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 if (this.text) {
@@ -293,7 +293,7 @@ Item {
     Process {
         id: eqProc
         running: true
-        command: ["bash", "-c", "$HOME/.config/quickshell/music/equalizer.sh get"]
+        command: ["bash", "-c", "$HOME/.config/quickshell/widgets/music/equalizer.sh get"]
         stdout: StdioCollector {
             onStreamFinished: {
                 if (this.text) {
@@ -765,7 +765,7 @@ Item {
                                         root.musicData = temp;
 
                                         var safePlayer = root.musicData.playerName ? root.musicData.playerName : "";
-                                        root.execCmd(`$HOME/.config/quickshell/music/player_control.sh seek ${value.toFixed(2)} ${root.musicData.length} "${safePlayer}"`);
+                                        root.execCmd(`$HOME/.config/quickshell/widgets/music/player_control.sh seek ${value.toFixed(2)} ${root.musicData.length} "${safePlayer}"`);
                                         
                                         seekDebounceTimer.restart();
                                     }
@@ -1005,7 +1005,7 @@ Item {
                                         root.lastEqUpdate = Date.now(); 
                                         
                                         root.triggerEqLightning();
-                                        root.execCmd("$HOME/.config/quickshell/music/equalizer.sh apply");
+                                        root.execCmd("$HOME/.config/quickshell/widgets/music/equalizer.sh apply");
                                     }
                                 }
                             }
@@ -1122,7 +1122,7 @@ Item {
                                                     // Set lock here too to protect individual slider tweaks
                                                     root.lastEqUpdate = Date.now();
                                                     
-                                                    root.execCmd(`$HOME/.config/quickshell/music/equalizer.sh set_band ${modelData.idx} ${Math.round(value)}`);
+                                                    root.execCmd(`$HOME/.config/quickshell/widgets/music/equalizer.sh set_band ${modelData.idx} ${Math.round(value)}`);
                                                 }
                                             }
 
