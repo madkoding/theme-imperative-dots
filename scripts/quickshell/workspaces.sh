@@ -33,6 +33,20 @@ fi
 # Configuration: How many workspaces do you want to show?
 SEQ_END=6
 
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+QS_STATE_DIR="${RUNTIME_DIR}/mados-quickshell"
+ACTIVE_WIDGET_FILE="${QS_ACTIVE_WIDGET_FILE:-${QS_STATE_DIR}/qs_active_widget}"
+
+get_active_workspace_id() {
+    timeout 2 hyprctl activeworkspace -j 2>/dev/null | jq -r '.id // empty'
+}
+
+get_active_widget() {
+    if [ -f "$ACTIVE_WIDGET_FILE" ]; then
+        tr -d '\r\n' < "$ACTIVE_WIDGET_FILE"
+    fi
+}
+
 print_workspaces() {
     # Get raw data with a timeout fallback
     spaces=$(timeout 2 hyprctl workspaces -j 2>/dev/null)
@@ -70,13 +84,14 @@ print_workspaces() {
 
 # Print initial state
 print_workspaces
+last_active_ws="$(get_active_workspace_id)"
 
 # ============================================================================
 # 2. THE EVENT DEBOUNCER
 # Listen to Hyprland socket wrapped in an infinite loop
 # ============================================================================
 while true; do
-    socat -u UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock - | while read -r line; do
+    while read -r line; do
         case "$line" in
             workspace*|focusedmon*|activewindow*|createwindow*|closewindow*|movewindow*|destroyworkspace*)
 
@@ -89,8 +104,19 @@ while true; do
                 done
 
                 print_workspaces
+
+                new_active_ws="$(get_active_workspace_id)"
+                if [ -n "$new_active_ws" ]; then
+                    if [ -n "$last_active_ws" ] && [ "$new_active_ws" != "$last_active_ws" ]; then
+                        active_widget="$(get_active_widget)"
+                        if [ -n "$active_widget" ] && [ "$active_widget" != "hidden" ]; then
+                            ~/.config/hypr/scripts/qs_manager.sh close all keepfocus >/dev/null 2>&1 &
+                        fi
+                    fi
+                    last_active_ws="$new_active_ws"
+                fi
                 ;;
         esac
-    done
+    done < <(socat -u UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock -)
     sleep 1
 done

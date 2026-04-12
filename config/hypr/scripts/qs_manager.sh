@@ -287,7 +287,10 @@ restore_focus() {
 # REMAINING ACTIONS (OPEN / CLOSE / TOGGLE)
 # -----------------------------------------------------------------------------
 if [[ "$ACTION" == "close" ]]; then
-    echo "close" > "$IPC_FILE"
+    ACTIVE_WIDGET="$(tr -d '\r\n' < "$ACTIVE_WIDGET_FILE" 2>/dev/null)"
+    if [[ "$ACTIVE_WIDGET" != "hidden" ]]; then
+        echo "close" > "$IPC_FILE"
+    fi
     if [[ "$SUBTARGET" != "keepfocus" ]]; then
         restore_focus
     fi
