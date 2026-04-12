@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.SystemTray
-import "./lib"
+import "./i18n"
 
 PanelWindow {
     id: barWindow
@@ -142,7 +142,7 @@ PanelWindow {
     // 1. The continuous background daemon
     Process {
         id: wsDaemon
-        command: ["bash", "-c", "~/.config/quickshell/workspaces.sh"]
+        command: ["bash", "-c", "~/.config/hypr/scripts/quickshell/workspaces.sh"]
         running: true
     }
 
@@ -160,7 +160,6 @@ PanelWindow {
                             ensureWorkspaceDefaults();
                             return;
                         }
-
                         if (workspacesModel.count !== newData.length) {
                             workspacesModel.clear();
                             for (let i = 0; i < newData.length; i++) {
@@ -212,7 +211,7 @@ PanelWindow {
     Process {
         id: musicForceRefresh
         running: true
-        command: ["bash", "-c", "bash ~/.config/quickshell/widgets/music/music_info.sh | tee /tmp/music_info.json"]
+        command: ["bash", "-c", "bash ~/.config/hypr/scripts/quickshell/music/music_info.sh | tee /tmp/music_info.json"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();
@@ -236,14 +235,16 @@ PanelWindow {
     Process {
         id: sysPoller
         running: true
-        command: ["bash", "-c", "~/.config/quickshell/sys_info.sh"]
+        command: ["bash", "-c", "$HOME/.config/hypr/scripts/quickshell/sys_info.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();
+                console.log("DEBUG sys_info raw:", txt.substring(0, 200));
                 if (txt !== "") {
                     try {
                         let data = JSON.parse(txt);
-
+                        console.log("DEBUG audio:", JSON.stringify(data.audio));
+                        
                         // Targeted Updates
                         if (barWindow.wifiStatus !== data.wifi.status) barWindow.wifiStatus = data.wifi.status;
                         if (barWindow.wifiIcon !== data.wifi.icon) barWindow.wifiIcon = data.wifi.icon;
@@ -278,25 +279,19 @@ PanelWindow {
     }
     Process {
         id: sysWaiter
-        command: ["bash", "-c", "~/.config/quickshell/sys_waiter.sh"]
-        onExited: sysPoller.running = true
-    }
-
-    Timer {
-        interval: 500
-        running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: sysPoller.running = true
+        command: ["bash", "-c", "~/.config/hypr/scripts/quickshell/sys_waiter.sh"]
+        stdout: StdioCollector {
+            onStreamFinished: sysPoller.running = true
+        }
     }
 
     // Weather remains a slow poll since it fetches from web
     Process {
         id: weatherPoller
         command: ["bash", "-c", `
-            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-icon)"
-            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-temp)"
-            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-hex)"
+            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-icon)"
+            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-temp)"
+            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-hex)"
         `]
         stdout: StdioCollector {
             onStreamFinished: {
@@ -313,10 +308,10 @@ PanelWindow {
     Process {
         id: weatherRefreshPoller
         command: ["bash", "-c", `
-            ~/.config/quickshell/widgets/calendar/weather.sh --refresh >/dev/null 2>&1
-            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-icon)"
-            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-temp)"
-            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-hex)"
+            ~/.config/hypr/scripts/quickshell/calendar/weather.sh --refresh >/dev/null 2>&1
+            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-icon)"
+            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-temp)"
+            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-hex)"
         `]
         stdout: SplitParser {
             onRead: data => {
@@ -332,7 +327,7 @@ PanelWindow {
 
     Process {
         id: weatherConfigTopBarPoller
-        command: ["bash", "-c", "~/.config/quickshell/widgets/calendar/weather.sh --get-config"]
+        command: ["bash", "-c", "~/.config/hypr/scripts/quickshell/calendar/weather.sh --get-config"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();
@@ -584,9 +579,7 @@ PanelWindow {
                                 id: wsPillMouse
                                 hoverEnabled: true
                                 anchors.fill: parent
-                                onClicked: {
-                                    Quickshell.execDetached(["bash", "-c", "hyprctl dispatch workspace " + wsName]);
-                                }
+                                onClicked: Quickshell.execDetached(["bash", "-c", "hyprctl dispatch workspace " + wsName])
                             }
                         }
                     }
@@ -947,46 +940,15 @@ PanelWindow {
                         transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
-                        RowLayout { id: helpLayoutRow; anchors.centerIn: parent; spacing: 0
-                            Text { text: ""; font.family: "Iosevka Nerd Font"; font.pixelSize: 16; color: parent.parent.isHovered ? mocha.blue : mocha.text }
+                        RowLayout { id: helpLayoutRow; anchors.centerIn: parent; spacing: 6
+                            Text { text: "?"; font.family: "Michroma"; font.pixelSize: 14; font.weight: Font.Black; color: parent.parent.isHovered ? mocha.blue : mocha.text }
+                            Text { text: I18n.s("Help"); font.family: "Michroma"; font.pixelSize: 11; font.weight: Font.Bold; color: parent.parent.isHovered ? mocha.blue : mocha.subtext0 }
                         }
                         MouseArea {
                             id: helpMouse
                             anchors.fill: parent
                             hoverEnabled: true
                             onClicked: Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh toggle guide"])
-                        }
-                    }
-
-                    // IA Services
-                    Rectangle {
-                        property bool isHovered: robotMouse.containsMouse
-                        color: isHovered ? Qt.rgba(mocha.surface1.r, mocha.surface1.g, mocha.surface1.b, 0.6) : Qt.rgba(mocha.surface0.r, mocha.surface0.g, mocha.surface0.b, 0.4)
-                        radius: 10; Layout.preferredHeight: sysLayout.pillHeight;
-                        clip: true
-
-                        property real targetWidth: robotLayoutRow.implicitWidth + 24
-                        Layout.preferredWidth: targetWidth
-                        Behavior on targetWidth { NumberAnimation { duration: 500; easing.type: Easing.OutQuint } }
-
-                        scale: isHovered ? 1.05 : 1.0
-                        Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutExpo } }
-                        Behavior on color { ColorAnimation { duration: 200 } }
-
-                        property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !parent.initAnimTrigger; interval: 0; onTriggered: parent.initAnimTrigger = true }
-                        opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
-                        Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
-
-                        RowLayout { id: robotLayoutRow; anchors.centerIn: parent; spacing: 0
-                            Text { text: "󰚩"; font.family: "Iosevka Nerd Font"; font.pixelSize: 16; color: parent.parent.isHovered ? mocha.mauve : mocha.text }
-                        }
-                        MouseArea {
-                            id: robotMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onClicked: Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh toggle ia"])
                         }
                     }
 

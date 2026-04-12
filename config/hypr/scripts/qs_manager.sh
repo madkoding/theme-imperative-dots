@@ -6,77 +6,12 @@
 QS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BT_PID_FILE="$HOME/.cache/bt_scan_pid"
 BT_SCAN_LOG="$HOME/.cache/bt_scan.log"
-SRC_DIR="${WALLPAPER_DIR:-}"
-if [[ -z "$SRC_DIR" ]]; then
-    if [[ -d "$HOME/.local/share/mados/wallpapers" ]]; then
-        SRC_DIR="$HOME/.local/share/mados/wallpapers"
-    else
-        SRC_DIR="$HOME/Images/Wallpapers"
-    fi
-fi
+SRC_DIR="$HOME/Images/Wallpapers"
 THUMB_DIR="$HOME/.cache/wallpaper_picker/thumbs"
 
 IPC_FILE="/tmp/qs_widget_state"
 NETWORK_MODE_FILE="/tmp/qs_network_mode"
 PREV_FOCUS_FILE="/tmp/qs_prev_focus"
-SWITCHER_ACTIVE_FILE="/tmp/qs_switcher_active"
-
-hydrate_from_systemd_env() {
-    local key="$1"
-    local current="${!key:-}"
-
-    if [[ -n "$current" ]]; then
-        return 0
-    fi
-
-    local value=""
-    value="$(systemctl --user show-environment 2>/dev/null | awk -F= -v k="$key" '$1==k {print $2; exit}')"
-    if [[ -n "$value" ]]; then
-        export "$key=$value"
-    fi
-}
-
-hydrate_runtime_env() {
-    hydrate_from_systemd_env "XDG_RUNTIME_DIR"
-    hydrate_from_systemd_env "DISPLAY"
-    hydrate_from_systemd_env "WAYLAND_DISPLAY"
-    hydrate_from_systemd_env "HYPRLAND_INSTANCE_SIGNATURE"
-    hydrate_from_systemd_env "XDG_CURRENT_DESKTOP"
-
-    if [[ -z "${XDG_RUNTIME_DIR:-}" ]]; then
-        export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-    fi
-
-    if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
-        if [[ -S "${XDG_RUNTIME_DIR}/wayland-1" ]]; then
-            export WAYLAND_DISPLAY="wayland-1"
-        elif [[ -S "${XDG_RUNTIME_DIR}/wayland-0" ]]; then
-            export WAYLAND_DISPLAY="wayland-0"
-        fi
-    fi
-
-    if [[ -z "${XDG_CURRENT_DESKTOP:-}" ]]; then
-        export XDG_CURRENT_DESKTOP="Hyprland"
-    fi
-
-    export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
-}
-
-hydrate_runtime_env
-
-RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
-QS_STATE_DIR="${RUNTIME_DIR}/mados-quickshell"
-mkdir -p "$QS_STATE_DIR"
-
-IPC_FILE="${QS_IPC_FILE:-${QS_STATE_DIR}/qs_widget_state}"
-ACTIVE_WIDGET_FILE="${QS_ACTIVE_WIDGET_FILE:-${QS_STATE_DIR}/qs_active_widget}"
-LEGACY_ACTIVE_WIDGET_FILE="/tmp/qs_active_widget"
-NETWORK_MODE_FILE="${QS_STATE_DIR}/qs_network_mode"
-PREV_FOCUS_FILE="${QS_STATE_DIR}/qs_prev_focus"
-SWITCHER_ACTIVE_FILE="${QS_STATE_DIR}/qs_switcher_active"
-
-export QS_IPC_FILE="$IPC_FILE"
-export QS_ACTIVE_WIDGET_FILE="$ACTIVE_WIDGET_FILE"
 
 ACTION="$1"
 TARGET="$2"
@@ -88,8 +23,6 @@ SUBTARGET="$3"
 if [[ "$ACTION" =~ ^[0-9]+$ ]]; then
     WORKSPACE_NUM="$ACTION"
     MOVE_OPT="$2"
-
-    echo "close" > "$IPC_FILE"
 
     if [[ "$MOVE_OPT" == "move" ]]; then
         hyprctl dispatch movetoworkspace "$WORKSPACE_NUM"
@@ -106,8 +39,6 @@ fi
 handle_wallpaper_prep() {
     mkdir -p "$THUMB_DIR"
     (
-        shopt -s nullglob
-
         for thumb in "$THUMB_DIR"/*; do
             [ -e "$thumb" ] || continue
             filename=$(basename "$thumb")
@@ -133,33 +64,17 @@ handle_wallpaper_prep() {
 
             if [[ "${extension,,}" =~ ^(mp4|mkv|mov|webm)$ ]]; then
                 thumb="$THUMB_DIR/000_$filename"
-                tmp_thumb="$THUMB_DIR/.000_${filename}.tmp.jpg"
                 [ -f "$THUMB_DIR/$filename" ] && rm -f "$THUMB_DIR/$filename"
                 if [ ! -f "$thumb" ]; then
-                    rm -f "$tmp_thumb"
-                    if ffmpeg -y -ss 00:00:05 -i "$img" -vframes 1 -f image2 -q:v 2 "$tmp_thumb" > /dev/null 2>&1; then
-                        mv -f "$tmp_thumb" "$thumb"
-                    else
-                        rm -f "$tmp_thumb"
-                    fi
+                     ffmpeg -y -ss 00:00:05 -i "$img" -vframes 1 -f image2 -q:v 2 "$thumb" > /dev/null 2>&1
                 fi
             else
                 thumb="$THUMB_DIR/$filename"
                 if [ ! -f "$thumb" ]; then
-                    thumb_ext="${thumb##*.}"
-                    thumb_base="${thumb%.*}"
-                    tmp_thumb="${thumb_base}.tmp.$RANDOM.${thumb_ext}"
-                    rm -f "$tmp_thumb"
-                    if magick "$img" -resize x420 -quality 70 "$tmp_thumb" > /dev/null 2>&1; then
-                        mv -f "$tmp_thumb" "$thumb"
-                    else
-                        rm -f "$tmp_thumb"
-                    fi
+                    magick "$img" -resize x420 -quality 70 "$thumb"
                 fi
             fi
         done
-
-        shopt -u nullglob
     ) &
 
     TARGET_THUMB=""
@@ -170,8 +85,8 @@ handle_wallpaper_prep() {
         CURRENT_SRC=$(basename "$CURRENT_SRC")
     fi
 
-    if [ -z "$CURRENT_SRC" ] && command -v awww >/dev/null; then
-        CURRENT_SRC=$(awww query 2>/dev/null | grep -o "$SRC_DIR/[^ ]*" | head -n1)
+    if [ -z "$CURRENT_SRC" ] && command -v swww >/dev/null; then
+        CURRENT_SRC=$(swww query 2>/dev/null | grep -o "$SRC_DIR/[^ ]*" | head -n1)
         CURRENT_SRC=$(basename "$CURRENT_SRC")
     fi
 
@@ -194,65 +109,37 @@ handle_network_prep() {
     (nmcli device wifi rescan) &
 }
 
-if [[ "$ACTION" == "refresh-wallpapers" ]]; then
-    handle_wallpaper_prep
-    exit 0
-fi
-
-# Route wallpaper control to skwd-wall launcher to avoid running
-# the legacy embedded wallpaper picker in parallel.
-if [[ "$TARGET" == "wallpaper" ]]; then
-    case "$ACTION" in
-        toggle)
-            mados-wallpaper-picker toggle >/dev/null 2>&1 || true
-            ;;
-        open)
-            mados-wallpaper-picker open >/dev/null 2>&1 || true
-            ;;
-        close)
-            mados-wallpaper-picker close >/dev/null 2>&1 || true
-            ;;
-        *)
-            mados-wallpaper-picker toggle >/dev/null 2>&1 || true
-            ;;
-    esac
-    exit 0
-fi
-
 # -----------------------------------------------------------------------------
 # ENSURE MASTER WINDOW & TOP BAR ARE ALIVE (ZOMBIE WATCHDOG)
-# Skip this for close actions so a close request cannot relaunch an empty popup.
 # -----------------------------------------------------------------------------
-if [[ "$ACTION" != "close" ]]; then
-    MAIN_QML_PATH="$HOME/.config/quickshell/Main.qml"
-    BAR_QML_PATH="$HOME/.config/quickshell/TopBar.qml"
+MAIN_QML_PATH="$HOME/.config/hypr/scripts/quickshell/Main.qml"
+BAR_QML_PATH="$HOME/.config/hypr/scripts/quickshell/TopBar.qml"
 
-    QS_PID=$(pgrep -f "quickshell.*Main\.qml")
-    WIN_EXISTS=$(hyprctl clients -j | grep "qs-master")
-    BAR_PID=$(pgrep -f "quickshell.*TopBar\.qml")
+QS_PID=$(pgrep -f "quickshell.*Main\.qml")
+WIN_EXISTS=$(hyprctl clients -j | grep "qs-master")
+BAR_PID=$(pgrep -f "quickshell.*TopBar\.qml")
 
-    if [[ -z "$QS_PID" ]] || [[ -z "$WIN_EXISTS" ]]; then
-        if [[ -n "$QS_PID" ]]; then
-            kill -9 $QS_PID 2>/dev/null
+if [[ -z "$QS_PID" ]] || [[ -z "$WIN_EXISTS" ]]; then
+    if [[ -n "$QS_PID" ]]; then
+        kill -9 $QS_PID 2>/dev/null
+    fi
+    
+    # Bypass NixOS symlink resolution by using the direct ~/.config path
+    quickshell -p "$MAIN_QML_PATH" >/dev/null 2>&1 &
+    disown
+    
+    for _ in {1..20}; do
+        if hyprctl clients -j | grep -q "qs-master"; then
+            sleep 0.1
+            break
         fi
+        sleep 0.05
+    done
+fi
 
-        # Bypass NixOS symlink resolution by using the direct ~/.config path
-        quickshell -p "$MAIN_QML_PATH" >/dev/null 2>&1 &
-        disown
-
-        for _ in {1..20}; do
-            if hyprctl clients -j | grep -q "qs-master"; then
-                sleep 0.1
-                break
-            fi
-            sleep 0.05
-        done
-    fi
-
-    if [[ -z "$BAR_PID" ]]; then
-        quickshell -p "$BAR_QML_PATH" >/dev/null 2>&1 &
-        disown
-    fi
+if [[ -z "$BAR_PID" ]]; then
+    quickshell -p "$BAR_QML_PATH" >/dev/null 2>&1 &
+    disown
 fi
 
 # -----------------------------------------------------------------------------
@@ -286,41 +173,12 @@ restore_focus() {
     fi
 }
 
-read_active_widget() {
-    local widget=""
-
-    if [[ -f "$ACTIVE_WIDGET_FILE" ]]; then
-        widget="$(tr -d '\r\n' < "$ACTIVE_WIDGET_FILE" 2>/dev/null)"
-    fi
-
-    if [[ -z "$widget" && "$ACTIVE_WIDGET_FILE" != "$LEGACY_ACTIVE_WIDGET_FILE" && -f "$LEGACY_ACTIVE_WIDGET_FILE" ]]; then
-        widget="$(tr -d '\r\n' < "$LEGACY_ACTIVE_WIDGET_FILE" 2>/dev/null)"
-    fi
-
-    printf '%s' "$widget"
-}
-
-is_master_window_open() {
-    timeout 2 hyprctl clients -j 2>/dev/null | jq -e '
-        any(.[];
-            (.title // "") == "qs-master" and
-            ((.size[0] // 1) > 1) and
-            ((.size[1] // 1) > 1)
-        )
-    ' >/dev/null 2>&1
-}
-
 # -----------------------------------------------------------------------------
 # REMAINING ACTIONS (OPEN / CLOSE / TOGGLE)
 # -----------------------------------------------------------------------------
 if [[ "$ACTION" == "close" ]]; then
-    ACTIVE_WIDGET="$(read_active_widget)"
-    if [[ -n "$ACTIVE_WIDGET" && "$ACTIVE_WIDGET" != "hidden" ]] || is_master_window_open; then
-        echo "close" > "$IPC_FILE"
-    fi
-    if [[ "$SUBTARGET" != "keepfocus" ]]; then
-        restore_focus
-    fi
+    echo "close" > "$IPC_FILE"
+    restore_focus
     if [[ "$TARGET" == "network" || "$TARGET" == "all" || -z "$TARGET" ]]; then
         if [ -f "$BT_PID_FILE" ]; then
             kill $(cat "$BT_PID_FILE") 2>/dev/null
@@ -332,7 +190,7 @@ if [[ "$ACTION" == "close" ]]; then
 fi
 
 if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
-    ACTIVE_WIDGET="$(read_active_widget)"
+    ACTIVE_WIDGET=$(cat /tmp/qs_active_widget 2>/dev/null)
     CURRENT_MODE=$(cat "$NETWORK_MODE_FILE" 2>/dev/null)
 
     # Dynamically fetch focused monitor geometry and adjust for Wayland layout scale
@@ -369,67 +227,6 @@ if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
         exit 0
     fi
 
-    if [[ "$TARGET" == "notifications" ]]; then
-        if [[ "$ACTION" == "toggle" ]]; then
-            echo "notifications" > "$IPC_FILE"
-            exit 0
-        fi
-
-        if [[ "$SUBTARGET" == "dismiss" || "$SUBTARGET" == "clear" ]]; then
-            echo "notifications:${SUBTARGET}" > "$IPC_FILE"
-            exit 0
-        fi
-
-        echo "notifications" > "$IPC_FILE"
-        exit 0
-    fi
-
-    if [[ "$TARGET" == "switcher" ]]; then
-        local_switcher_action="open"
-        if [[ -n "$SUBTARGET" ]]; then
-            local_switcher_action="$SUBTARGET"
-        fi
-
-        case "$local_switcher_action" in
-            open|next|prev)
-                if [[ "$ACTIVE_WIDGET" != "switcher" ]]; then
-                    save_and_focus_widget
-                    echo "1" > "$SWITCHER_ACTIVE_FILE"
-                    echo "switcher:${local_switcher_action}:$MON_DATA" > "$IPC_FILE"
-                else
-                    echo "switcher:${local_switcher_action}:$MON_DATA" > "$IPC_FILE"
-                fi
-                ;;
-
-            confirm)
-                echo "switcher:confirm:$MON_DATA" > "$IPC_FILE"
-                rm -f "$SWITCHER_ACTIVE_FILE"
-                ;;
-
-            cancel)
-                echo "close" > "$IPC_FILE"
-                rm -f "$SWITCHER_ACTIVE_FILE"
-                restore_focus
-                ;;
-
-            close)
-                echo "switcher:close:$MON_DATA" > "$IPC_FILE"
-                ;;
-
-            *)
-                if [[ "$ACTIVE_WIDGET" != "switcher" ]]; then
-                    save_and_focus_widget
-                    echo "1" > "$SWITCHER_ACTIVE_FILE"
-                    echo "switcher:open:$MON_DATA" > "$IPC_FILE"
-                else
-                    echo "switcher:open:$MON_DATA" > "$IPC_FILE"
-                fi
-                ;;
-        esac
-
-        exit 0
-    fi
-
     # Intercept toggle logic for all other widgets so we can restore focus properly
     if [[ "$ACTION" == "toggle" && "$ACTIVE_WIDGET" == "$TARGET" ]]; then
         echo "close" > "$IPC_FILE"
@@ -437,7 +234,12 @@ if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
         exit 0
     fi
 
-    echo "$TARGET::$MON_DATA" > "$IPC_FILE"
+    if [[ "$TARGET" == "wallpaper" ]]; then
+        handle_wallpaper_prep
+        echo "$TARGET:$WALLPAPER_THUMB:$MON_DATA" > "$IPC_FILE"
+    else
+        echo "$TARGET::$MON_DATA" > "$IPC_FILE"
+    fi
     
     save_and_focus_widget
     exit 0

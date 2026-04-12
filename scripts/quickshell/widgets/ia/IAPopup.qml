@@ -485,249 +485,278 @@ Item {
                 Layout.fillHeight: true
                 clip: true
 
-                ColumnLayout {
-                    width: parent.width
-                    spacing: 14
+                Item {
+                    id: scrollContent
+                    width: (parent && parent.width > 0) ? parent.width : (root.width - 40)
+                    implicitHeight: cardsColumn.implicitHeight + 8
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        radius: 12
-                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
-                        border.width: 1
-                        border.color: root.surface1
+                    Column {
+                        id: cardsColumn
+                        width: parent.width
+                        spacing: 14
 
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 14
-                            spacing: 10
+                        Rectangle {
+                            id: opencodeCard
+                            width: parent.width
+                            implicitHeight: opencodeCardContent.implicitHeight + 28
+                            radius: 12
+                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
+                            border.width: 1
+                            border.color: root.surface1
 
-                            RowLayout {
-                                Layout.fillWidth: true
+                            ColumnLayout {
+                                id: opencodeCardContent
+                                width: parent.width - 28
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.top: parent.top
+                                anchors.topMargin: 14
                                 spacing: 10
 
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 3
-                                    Text { text: "OpenCode"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
-                                    Text { text: "opencode serve --hostname <host> --port <port>"; font.family: "Iosevka Nerd Font"; font.pixelSize: 10; color: root.subtext0 }
-                                }
-
                                 RowLayout {
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    spacing: 8
-                                    Text { text: root.statusDotText(root.opencodeState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.opencodeState) }
-                                    Text { text: root.stateLabel(root.opencodeState, root.opencodeAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
-                                    Switch {
-                                        checked: root.opencodeSwitch
-                                        enabled: root.serviceSwitchEnabled(root.opencodeAvailable, root.opencodeState)
-                                        onToggled: {
-                                            if (root._suspendSwitchHandlers) return;
-                                            if (checked) root.startService("opencode"); else root.stopService("opencode");
+                                    Layout.fillWidth: true
+                                    spacing: 10
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 3
+                                        Text { text: "OpenCode"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
+                                        Text { text: "opencode serve --hostname <host> --port <port>"; font.family: "Iosevka Nerd Font"; font.pixelSize: 10; color: root.subtext0 }
+                                    }
+
+                                    RowLayout {
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        spacing: 8
+                                        Text { text: root.statusDotText(root.opencodeState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.opencodeState) }
+                                        Text { text: root.stateLabel(root.opencodeState, root.opencodeAvailable); font.family: "Michroma"; font.pixelSize: 9; color: root.subtext0 }
+                                        Switch {
+                                            checked: root.opencodeSwitch
+                                            enabled: root.serviceSwitchEnabled(root.opencodeAvailable, root.opencodeState)
+                                            onToggled: {
+                                                if (root._suspendSwitchHandlers) return;
+                                                if (checked) root.startService("opencode"); else root.stopService("opencode");
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            GridLayout {
-                                columns: 2
-                                columnSpacing: 8
-                                rowSpacing: 8
-                                Layout.fillWidth: true
-
-                                TextField {
+                                GridLayout {
+                                    id: opencodeGrid
+                                    columns: width > 460 ? 2 : 1
+                                    columnSpacing: 8
+                                    rowSpacing: 8
                                     Layout.fillWidth: true
-                                    placeholderText: "Host"
-                                    text: cfg.opencodeHost
-                                    onEditingFinished: cfg.opencodeHost = text.trim() === "" ? "0.0.0.0" : text.trim()
-                                }
-                                TextField {
-                                    Layout.fillWidth: true
-                                    placeholderText: "Port"
-                                    text: String(cfg.opencodePort)
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onEditingFinished: cfg.opencodePort = root.sanitizePort(text, 4096)
-                                }
-                            }
 
-                            TextField {
-                                Layout.fillWidth: true
-                                placeholderText: "Extra args (optional)"
-                                text: cfg.opencodeArgs
-                                onEditingFinished: cfg.opencodeArgs = text
-                            }
-
-                            Text {
-                                Layout.fillWidth: true
-                                wrapMode: Text.Wrap
-                                text: root.opencodeMessage
-                                font.family: "Michroma"
-                                font.pixelSize: 10
-                                color: root.subtext0
-                            }
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        radius: 12
-                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
-                        border.width: 1
-                        border.color: root.surface1
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 14
-                            spacing: 10
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 10
-
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 3
-                                    Text { text: "Ollama"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
-                                    Text { text: "Model selection adapts to detected VRAM"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
-                                }
-
-                                RowLayout {
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    spacing: 8
-                                    Text { text: root.statusDotText(root.ollamaState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.ollamaState) }
-                                    Text { text: root.stateLabel(root.ollamaState, root.ollamaAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
-                                    Switch {
-                                        checked: root.ollamaSwitch
-                                        enabled: root.serviceSwitchEnabled(root.ollamaAvailable, root.ollamaState)
-                                        onToggled: {
-                                            if (root._suspendSwitchHandlers) return;
-                                            if (checked) root.startService("ollama"); else root.stopService("ollama");
-                                        }
+                                    TextField {
+                                        Layout.fillWidth: true
+                                        placeholderText: "Host"
+                                        text: cfg.opencodeHost
+                                        onEditingFinished: cfg.opencodeHost = text.trim() === "" ? "0.0.0.0" : text.trim()
+                                    }
+                                    TextField {
+                                        Layout.fillWidth: true
+                                        placeholderText: "Port"
+                                        text: String(cfg.opencodePort)
+                                        inputMethodHints: Qt.ImhDigitsOnly
+                                        onEditingFinished: cfg.opencodePort = root.sanitizePort(text, 4096)
                                     }
                                 }
-                            }
-
-                            GridLayout {
-                                columns: 2
-                                columnSpacing: 8
-                                rowSpacing: 8
-                                Layout.fillWidth: true
 
                                 TextField {
                                     Layout.fillWidth: true
-                                    placeholderText: "Host"
-                                    text: cfg.ollamaHost
-                                    onEditingFinished: cfg.ollamaHost = text.trim() === "" ? "127.0.0.1" : text.trim()
+                                    placeholderText: "Extra args (optional)"
+                                    text: cfg.opencodeArgs
+                                    onEditingFinished: cfg.opencodeArgs = text
                                 }
-                                TextField {
-                                    Layout.fillWidth: true
-                                    placeholderText: "Port"
-                                    text: String(cfg.ollamaPort)
-                                    inputMethodHints: Qt.ImhDigitsOnly
-                                    onEditingFinished: cfg.ollamaPort = root.sanitizePort(text, 11434)
-                                }
-                            }
 
-                            ComboBox {
-                                Layout.fillWidth: true
-                                model: root.ollamaCandidates
-                                currentIndex: Math.max(0, root.ollamaCandidates.indexOf(cfg.ollamaModel))
-                                onActivated: cfg.ollamaModel = currentText
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-                                CheckBox {
-                                    checked: cfg.ollamaAutoPull
-                                    onToggled: cfg.ollamaAutoPull = checked
-                                }
                                 Text {
-                                    text: "Auto pull model when enabling"
+                                    Layout.fillWidth: true
+                                    wrapMode: Text.Wrap
+                                    text: root.opencodeMessage
                                     font.family: "Michroma"
                                     font.pixelSize: 10
                                     color: root.subtext0
                                 }
                             }
-
-                            Text {
-                                Layout.fillWidth: true
-                                wrapMode: Text.Wrap
-                                text: root.ollamaMessage
-                                font.family: "Michroma"
-                                font.pixelSize: 10
-                                color: root.subtext0
-                            }
                         }
-                    }
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        radius: 12
-                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
-                        border.width: 1
-                        border.color: root.surface1
+                        Rectangle {
+                            id: ollamaCard
+                            width: parent.width
+                            implicitHeight: ollamaCardContent.implicitHeight + 28
+                            radius: 12
+                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
+                            border.width: 1
+                            border.color: root.surface1
 
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 14
-                            spacing: 10
-
-                            RowLayout {
-                                Layout.fillWidth: true
+                            ColumnLayout {
+                                id: ollamaCardContent
+                                width: parent.width - 28
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.top: parent.top
+                                anchors.topMargin: 14
                                 spacing: 10
 
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 3
-                                    Text { text: "OpenClaw"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
-                                    Text { text: "Manual command mode"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
-                                }
-
                                 RowLayout {
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    spacing: 8
-                                    Text { text: root.statusDotText(root.openclawState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.openclawState) }
-                                    Text { text: root.stateLabel(root.openclawState, root.openclawAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
-                                    Switch {
-                                        checked: root.openclawSwitch
-                                        enabled: root.serviceSwitchEnabled(root.openclawAvailable, root.openclawState)
-                                        onToggled: {
-                                            if (root._suspendSwitchHandlers) return;
-                                            if (checked) root.startService("openclaw"); else root.stopService("openclaw");
+                                    Layout.fillWidth: true
+                                    spacing: 10
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 3
+                                        Text { text: "Ollama"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
+                                        Text { text: "Model selection adapts to detected VRAM"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
+                                    }
+
+                                    RowLayout {
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        spacing: 8
+                                        Text { text: root.statusDotText(root.ollamaState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.ollamaState) }
+                                        Text { text: root.stateLabel(root.ollamaState, root.ollamaAvailable); font.family: "Michroma"; font.pixelSize: 9; color: root.subtext0 }
+                                        Switch {
+                                            checked: root.ollamaSwitch
+                                            enabled: root.serviceSwitchEnabled(root.ollamaAvailable, root.ollamaState)
+                                            onToggled: {
+                                                if (root._suspendSwitchHandlers) return;
+                                                if (checked) root.startService("ollama"); else root.stopService("ollama");
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            TextField {
-                                Layout.fillWidth: true
-                                placeholderText: "Start command"
-                                text: cfg.openclawStartCmd
-                                onEditingFinished: cfg.openclawStartCmd = text.trim() === "" ? "openclaw gateway --port 18789" : text
-                            }
+                                GridLayout {
+                                    id: ollamaGrid
+                                    columns: width > 460 ? 2 : 1
+                                    columnSpacing: 8
+                                    rowSpacing: 8
+                                    Layout.fillWidth: true
 
-                            TextField {
-                                Layout.fillWidth: true
-                                placeholderText: "Process match regex"
-                                text: cfg.openclawMatch
-                                onEditingFinished: cfg.openclawMatch = text.trim() === "" ? "openclaw.*gateway" : text
-                            }
+                                    TextField {
+                                        Layout.fillWidth: true
+                                        placeholderText: "Host"
+                                        text: cfg.ollamaHost
+                                        onEditingFinished: cfg.ollamaHost = text.trim() === "" ? "127.0.0.1" : text.trim()
+                                    }
+                                    TextField {
+                                        Layout.fillWidth: true
+                                        placeholderText: "Port"
+                                        text: String(cfg.ollamaPort)
+                                        inputMethodHints: Qt.ImhDigitsOnly
+                                        onEditingFinished: cfg.ollamaPort = root.sanitizePort(text, 11434)
+                                    }
+                                }
 
-                            TextField {
-                                Layout.fillWidth: true
-                                placeholderText: "Stop command (optional)"
-                                text: cfg.openclawStopCmd
-                                onEditingFinished: cfg.openclawStopCmd = text
-                            }
+                                ComboBox {
+                                    Layout.fillWidth: true
+                                    model: root.ollamaCandidates
+                                    currentIndex: Math.max(0, root.ollamaCandidates.indexOf(cfg.ollamaModel))
+                                    onActivated: cfg.ollamaModel = currentText
+                                }
 
-                            Text {
-                                Layout.fillWidth: true
-                                wrapMode: Text.Wrap
-                                text: root.openclawMessage
-                                font.family: "Michroma"
-                                font.pixelSize: 10
-                                color: root.subtext0
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+                                    CheckBox {
+                                        checked: cfg.ollamaAutoPull
+                                        onToggled: cfg.ollamaAutoPull = checked
+                                    }
+                                    Text {
+                                        text: "Auto pull model when enabling"
+                                        font.family: "Michroma"
+                                        font.pixelSize: 10
+                                        color: root.subtext0
+                                    }
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    wrapMode: Text.Wrap
+                                    text: root.ollamaMessage
+                                    font.family: "Michroma"
+                                    font.pixelSize: 10
+                                    color: root.subtext0
+                                }
                             }
+                        }
+
+                        Rectangle {
+                            id: openclawCard
+                            width: parent.width
+                            implicitHeight: openclawCardContent.implicitHeight + 28
+                            radius: 12
+                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
+                            border.width: 1
+                            border.color: root.surface1
+
+                            ColumnLayout {
+                                id: openclawCardContent
+                                width: parent.width - 28
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.top: parent.top
+                                anchors.topMargin: 14
+                                spacing: 10
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 10
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 3
+                                        Text { text: "OpenClaw"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
+                                        Text { text: "Manual command mode"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
+                                    }
+
+                                    RowLayout {
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        spacing: 8
+                                        Text { text: root.statusDotText(root.openclawState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.openclawState) }
+                                        Text { text: root.stateLabel(root.openclawState, root.openclawAvailable); font.family: "Michroma"; font.pixelSize: 9; color: root.subtext0 }
+                                        Switch {
+                                            checked: root.openclawSwitch
+                                            enabled: root.serviceSwitchEnabled(root.openclawAvailable, root.openclawState)
+                                            onToggled: {
+                                                if (root._suspendSwitchHandlers) return;
+                                                if (checked) root.startService("openclaw"); else root.stopService("openclaw");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                TextField {
+                                    Layout.fillWidth: true
+                                    placeholderText: "Start command"
+                                    text: cfg.openclawStartCmd
+                                    onEditingFinished: cfg.openclawStartCmd = text.trim() === "" ? "openclaw gateway --port 18789" : text
+                                }
+
+                                TextField {
+                                    Layout.fillWidth: true
+                                    placeholderText: "Process match regex"
+                                    text: cfg.openclawMatch
+                                    onEditingFinished: cfg.openclawMatch = text.trim() === "" ? "openclaw.*gateway" : text
+                                }
+
+                                TextField {
+                                    Layout.fillWidth: true
+                                    placeholderText: "Stop command (optional)"
+                                    text: cfg.openclawStopCmd
+                                    onEditingFinished: cfg.openclawStopCmd = text
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    wrapMode: Text.Wrap
+                                    text: root.openclawMessage
+                                    font.family: "Michroma"
+                                    font.pixelSize: 10
+                                    color: root.subtext0
+                                }
+                            }
+                        }
+
+                        Item {
+                            width: parent.width
+                            height: 8
                         }
                     }
                 }
