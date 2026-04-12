@@ -409,17 +409,30 @@ Scope {
                     visible: text !== ""
                 }
 
-                Text {
-                    text: "x"
-                    font.family: "Michroma"
-                    font.pixelSize: 12
-                    font.weight: Font.Black
-                    color: closeMouse.containsMouse ? theme.red : theme.overlay1
+                Rectangle {
+                    id: closeBtn
+                    property bool isHovered: closeMouse.containsMouse
+                    width: 24
+                    height: 24
+                    radius: 6
+                    color: isHovered ? Qt.rgba(theme.red.r, theme.red.g, theme.red.b, 0.2) : "transparent"
+                    border.width: 1
+                    border.color: isHovered ? theme.red : "transparent"
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on border.color { ColorAnimation { duration: 150 } }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: I18n.s("Close")
+                        font.family: "Iosevka Nerd Font"
+                        font.pixelSize: 12
+                        color: isHovered ? theme.red : theme.overlay1
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
 
                     MouseArea {
                         id: closeMouse
                         anchors.fill: parent
-                        anchors.margins: -4
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: card.animateDismiss()

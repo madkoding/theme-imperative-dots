@@ -23,6 +23,9 @@ Item {
     readonly property color yellow: _theme.yellow
     readonly property color red: _theme.red
     readonly property color mauve: _theme.mauve
+    readonly property color peach: _theme.peach
+    readonly property color sapphire: _theme.sapphire
+    readonly property int compactInputHeight: 30
 
     readonly property string helperScript: Quickshell.env("HOME") + "/.config/quickshell/widgets/ia/ia_services.sh"
 
@@ -94,8 +97,45 @@ Item {
         return "";
     }
 
+    function shortStateLabel(state, available) {
+        if (!available) return "N/A";
+        if (state === "running") return "On";
+        if (state === "starting") return "...";
+        if (state === "failed") return "Err";
+        return "Off";
+    }
+
     function serviceSwitchEnabled(available, state) {
         return available && state !== "starting";
+    }
+
+    function serviceAccent(service) {
+        if (service === "opencode") return root.mauve;
+        if (service === "ollama") return root.blue;
+        return root.peach;
+    }
+
+    function cardBackground(state, service) {
+        let c = serviceAccent(service);
+        if (state === "running") return Qt.rgba(c.r, c.g, c.b, 0.14);
+        if (state === "starting") return Qt.rgba(root.yellow.r, root.yellow.g, root.yellow.b, 0.10);
+        if (state === "failed") return Qt.rgba(root.red.r, root.red.g, root.red.b, 0.10);
+        return Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52);
+    }
+
+    function cardBorder(state, service) {
+        if (state === "running") return Qt.lighter(serviceAccent(service), 1.05);
+        if (state === "starting") return root.yellow;
+        if (state === "failed") return root.red;
+        return root.surface1;
+    }
+
+    function serviceHealthSummary() {
+        let running = 0;
+        if (root.opencodeState === "running") running += 1;
+        if (root.ollamaState === "running") running += 1;
+        if (root.openclawState === "running") running += 1;
+        return String(running) + "/3 online";
     }
 
     function setSwitchByState(service, state) {
@@ -414,6 +454,34 @@ Item {
         border.width: 1
         border.color: root.surface1
 
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            gradient: Gradient {
+                orientation: Gradient.Vertical
+                GradientStop { position: 0.0; color: Qt.rgba(root.mauve.r, root.mauve.g, root.mauve.b, 0.06) }
+                GradientStop { position: 1.0; color: "transparent" }
+            }
+        }
+
+        Rectangle {
+            width: 220
+            height: 220
+            radius: 110
+            x: -80
+            y: -120
+            color: Qt.rgba(root.sapphire.r, root.sapphire.g, root.sapphire.b, 0.10)
+        }
+
+        Rectangle {
+            width: 200
+            height: 200
+            radius: 100
+            x: parent.width - 120
+            y: -90
+            color: Qt.rgba(root.mauve.r, root.mauve.g, root.mauve.b, 0.08)
+        }
+
         ColumnLayout {
             anchors.fill: parent
             anchors.margins: 20
@@ -452,6 +520,23 @@ Item {
                 Item { Layout.fillWidth: true }
 
                 Rectangle {
+                    radius: 10
+                    Layout.preferredHeight: 28
+                    Layout.preferredWidth: 120
+                    color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.72)
+                    border.width: 1
+                    border.color: root.surface2
+                    Text {
+                        anchors.centerIn: parent
+                        text: root.serviceHealthSummary()
+                        font.family: "Michroma"
+                        font.pixelSize: 9
+                        font.weight: Font.Bold
+                        color: root.subtext0
+                    }
+                }
+
+                Rectangle {
                     Layout.preferredWidth: 34
                     Layout.preferredHeight: 34
                     radius: 10
@@ -480,6 +565,47 @@ Item {
                 color: Qt.rgba(root.surface2.r, root.surface2.g, root.surface2.b, 0.5)
             }
 
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 34
+                    radius: 10
+                    color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.55)
+                    border.width: 1
+                    border.color: root.surface1
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 6
+                        Text { text: "󰆦"; font.family: "Iosevka Nerd Font"; font.pixelSize: 14; color: root.sapphire }
+                        Text { text: "Detected VRAM"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
+                        Item { Layout.fillWidth: true }
+                        Text { text: root.vramDetected ? (root.vramGiB.toFixed(1) + " GiB") : "N/A"; font.family: "Michroma"; font.pixelSize: 12; color: root.text }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 34
+                    radius: 10
+                    color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.55)
+                    border.width: 1
+                    border.color: root.surface1
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 6
+                        Text { text: "󱐋"; font.family: "Iosevka Nerd Font"; font.pixelSize: 14; color: root.green }
+                        Text { text: "Profiles"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
+                        Item { Layout.fillWidth: true }
+                        Text { text: String(root.ollamaCandidates.length) + " models"; font.family: "Michroma"; font.pixelSize: 12; color: root.text }
+                    }
+                }
+            }
+
             ScrollView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -487,26 +613,29 @@ Item {
 
                 Item {
                     id: scrollContent
-                    width: (parent && parent.width > 0) ? parent.width : (root.width - 40)
-                    implicitHeight: cardsColumn.implicitHeight + 8
+                    width: (parent && parent.width > 0) ? Math.max(0, parent.width - 8) : (root.width - 48)
+                    implicitHeight: cardsGrid.implicitHeight + 8
 
-                    Column {
-                        id: cardsColumn
-                        width: parent.width
+                    Grid {
+                        id: cardsGrid
+                        x: 4
+                        width: Math.max(0, parent.width - 8)
+                        columns: 2
                         spacing: 14
 
                         Rectangle {
                             id: opencodeCard
-                            width: parent.width
+                            width: Math.floor((cardsGrid.width - cardsGrid.spacing) / 2)
                             implicitHeight: opencodeCardContent.implicitHeight + 28
-                            radius: 12
-                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
+                            clip: true
+                            radius: 14
+                            color: root.cardBackground(root.opencodeState, "opencode")
                             border.width: 1
-                            border.color: root.surface1
+                            border.color: root.cardBorder(root.opencodeState, "opencode")
 
                             ColumnLayout {
                                 id: opencodeCardContent
-                                width: parent.width - 28
+                                width: parent.width - 34
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.top: parent.top
                                 anchors.topMargin: 14
@@ -519,15 +648,19 @@ Item {
                                     ColumnLayout {
                                         Layout.fillWidth: true
                                         spacing: 3
-                                        Text { text: "OpenCode"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
-                                        Text { text: "opencode serve --hostname <host> --port <port>"; font.family: "Iosevka Nerd Font"; font.pixelSize: 10; color: root.subtext0 }
+                                        Text { text: "OpenCode"; font.family: "Michroma"; font.pixelSize: 15; font.weight: Font.Black; color: root.text }
+                                        Text { text: "opencode serve --hostname <host> --port <port>"; font.family: "Iosevka Nerd Font"; font.pixelSize: 11; color: Qt.lighter(root.subtext0, 1.2) }
                                     }
+
+                                    Item { Layout.fillWidth: true }
 
                                     RowLayout {
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        Layout.preferredWidth: 132
+                                        Layout.fillWidth: false
                                         spacing: 8
                                         Text { text: root.statusDotText(root.opencodeState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.opencodeState) }
-                                        Text { text: root.stateLabel(root.opencodeState, root.opencodeAvailable); font.family: "Michroma"; font.pixelSize: 9; color: root.subtext0 }
+                                        Text { text: root.shortStateLabel(root.opencodeState, root.opencodeAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.opencodeSwitch
                                             enabled: root.serviceSwitchEnabled(root.opencodeAvailable, root.opencodeState)
@@ -541,30 +674,69 @@ Item {
 
                                 GridLayout {
                                     id: opencodeGrid
-                                    columns: width > 460 ? 2 : 1
+                                    columns: 1
                                     columnSpacing: 8
                                     rowSpacing: 8
                                     Layout.fillWidth: true
 
                                     TextField {
                                         Layout.fillWidth: true
+                                        implicitHeight: root.compactInputHeight
+                                        font.family: "Michroma"
+                                        font.pixelSize: 11
                                         placeholderText: "Host"
                                         text: cfg.opencodeHost
+                                        color: root.text
+                                        placeholderTextColor: root.subtext0
+                                        leftPadding: 8
+                                        rightPadding: 8
+                                        background: Rectangle {
+                                            radius: 8
+                                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                            border.width: 1
+                                            border.color: root.surface2
+                                        }
                                         onEditingFinished: cfg.opencodeHost = text.trim() === "" ? "0.0.0.0" : text.trim()
                                     }
                                     TextField {
                                         Layout.fillWidth: true
+                                        implicitHeight: root.compactInputHeight
+                                        font.family: "Michroma"
+                                        font.pixelSize: 11
                                         placeholderText: "Port"
                                         text: String(cfg.opencodePort)
                                         inputMethodHints: Qt.ImhDigitsOnly
+                                        color: root.text
+                                        placeholderTextColor: root.subtext0
+                                        leftPadding: 8
+                                        rightPadding: 8
+                                        background: Rectangle {
+                                            radius: 8
+                                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                            border.width: 1
+                                            border.color: root.surface2
+                                        }
                                         onEditingFinished: cfg.opencodePort = root.sanitizePort(text, 4096)
                                     }
                                 }
 
                                 TextField {
                                     Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: 11
                                     placeholderText: "Extra args (optional)"
                                     text: cfg.opencodeArgs
+                                    color: root.text
+                                    placeholderTextColor: root.subtext0
+                                    leftPadding: 8
+                                    rightPadding: 8
+                                    background: Rectangle {
+                                        radius: 8
+                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                        border.width: 1
+                                        border.color: root.surface2
+                                    }
                                     onEditingFinished: cfg.opencodeArgs = text
                                 }
 
@@ -573,24 +745,26 @@ Item {
                                     wrapMode: Text.Wrap
                                     text: root.opencodeMessage
                                     font.family: "Michroma"
-                                    font.pixelSize: 10
-                                    color: root.subtext0
+                                    font.pixelSize: 11
+                                    color: root.text
+                                    visible: root.opencodeState === "failed" || root.opencodeState === "starting"
                                 }
                             }
                         }
 
                         Rectangle {
                             id: ollamaCard
-                            width: parent.width
+                            width: Math.floor((cardsGrid.width - cardsGrid.spacing) / 2)
                             implicitHeight: ollamaCardContent.implicitHeight + 28
-                            radius: 12
-                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
+                            clip: true
+                            radius: 14
+                            color: root.cardBackground(root.ollamaState, "ollama")
                             border.width: 1
-                            border.color: root.surface1
+                            border.color: root.cardBorder(root.ollamaState, "ollama")
 
                             ColumnLayout {
                                 id: ollamaCardContent
-                                width: parent.width - 28
+                                width: parent.width - 34
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.top: parent.top
                                 anchors.topMargin: 14
@@ -603,15 +777,19 @@ Item {
                                     ColumnLayout {
                                         Layout.fillWidth: true
                                         spacing: 3
-                                        Text { text: "Ollama"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
-                                        Text { text: "Model selection adapts to detected VRAM"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
+                                        Text { text: "Ollama"; font.family: "Michroma"; font.pixelSize: 15; font.weight: Font.Black; color: root.text }
+                                        Text { text: "Model selection adapts to detected VRAM"; font.family: "Michroma"; font.pixelSize: 11; color: Qt.lighter(root.subtext0, 1.2) }
                                     }
+
+                                    Item { Layout.fillWidth: true }
 
                                     RowLayout {
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        Layout.preferredWidth: 132
+                                        Layout.fillWidth: false
                                         spacing: 8
                                         Text { text: root.statusDotText(root.ollamaState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.ollamaState) }
-                                        Text { text: root.stateLabel(root.ollamaState, root.ollamaAvailable); font.family: "Michroma"; font.pixelSize: 9; color: root.subtext0 }
+                                        Text { text: root.shortStateLabel(root.ollamaState, root.ollamaAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.ollamaSwitch
                                             enabled: root.serviceSwitchEnabled(root.ollamaAvailable, root.ollamaState)
@@ -625,30 +803,65 @@ Item {
 
                                 GridLayout {
                                     id: ollamaGrid
-                                    columns: width > 460 ? 2 : 1
+                                    columns: 1
                                     columnSpacing: 8
                                     rowSpacing: 8
                                     Layout.fillWidth: true
 
                                     TextField {
                                         Layout.fillWidth: true
+                                        implicitHeight: root.compactInputHeight
+                                        font.family: "Michroma"
+                                        font.pixelSize: 11
                                         placeholderText: "Host"
                                         text: cfg.ollamaHost
+                                        color: root.text
+                                        placeholderTextColor: root.subtext0
+                                        leftPadding: 8
+                                        rightPadding: 8
+                                        background: Rectangle {
+                                            radius: 8
+                                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                            border.width: 1
+                                            border.color: root.surface2
+                                        }
                                         onEditingFinished: cfg.ollamaHost = text.trim() === "" ? "127.0.0.1" : text.trim()
                                     }
                                     TextField {
                                         Layout.fillWidth: true
+                                        implicitHeight: root.compactInputHeight
+                                        font.family: "Michroma"
+                                        font.pixelSize: 11
                                         placeholderText: "Port"
                                         text: String(cfg.ollamaPort)
                                         inputMethodHints: Qt.ImhDigitsOnly
+                                        color: root.text
+                                        placeholderTextColor: root.subtext0
+                                        leftPadding: 8
+                                        rightPadding: 8
+                                        background: Rectangle {
+                                            radius: 8
+                                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                            border.width: 1
+                                            border.color: root.surface2
+                                        }
                                         onEditingFinished: cfg.ollamaPort = root.sanitizePort(text, 11434)
                                     }
                                 }
 
                                 ComboBox {
                                     Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: 11
                                     model: root.ollamaCandidates
                                     currentIndex: Math.max(0, root.ollamaCandidates.indexOf(cfg.ollamaModel))
+                                    background: Rectangle {
+                                        radius: 8
+                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                        border.width: 1
+                                        border.color: root.surface2
+                                    }
                                     onActivated: cfg.ollamaModel = currentText
                                 }
 
@@ -662,8 +875,8 @@ Item {
                                     Text {
                                         text: "Auto pull model when enabling"
                                         font.family: "Michroma"
-                                        font.pixelSize: 10
-                                        color: root.subtext0
+                                        font.pixelSize: 11
+                                        color: root.text
                                     }
                                 }
 
@@ -672,24 +885,26 @@ Item {
                                     wrapMode: Text.Wrap
                                     text: root.ollamaMessage
                                     font.family: "Michroma"
-                                    font.pixelSize: 10
-                                    color: root.subtext0
+                                    font.pixelSize: 11
+                                    color: root.text
+                                    visible: root.ollamaState === "failed" || root.ollamaState === "starting"
                                 }
                             }
                         }
 
                         Rectangle {
                             id: openclawCard
-                            width: parent.width
+                            width: Math.floor((cardsGrid.width - cardsGrid.spacing) / 2)
                             implicitHeight: openclawCardContent.implicitHeight + 28
-                            radius: 12
-                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52)
+                            clip: true
+                            radius: 14
+                            color: root.cardBackground(root.openclawState, "openclaw")
                             border.width: 1
-                            border.color: root.surface1
+                            border.color: root.cardBorder(root.openclawState, "openclaw")
 
                             ColumnLayout {
                                 id: openclawCardContent
-                                width: parent.width - 28
+                                width: parent.width - 34
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.top: parent.top
                                 anchors.topMargin: 14
@@ -702,15 +917,19 @@ Item {
                                     ColumnLayout {
                                         Layout.fillWidth: true
                                         spacing: 3
-                                        Text { text: "OpenClaw"; font.family: "Michroma"; font.pixelSize: 13; font.weight: Font.Black; color: root.text }
-                                        Text { text: "Manual command mode"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
+                                        Text { text: "OpenClaw"; font.family: "Michroma"; font.pixelSize: 15; font.weight: Font.Black; color: root.text }
+                                        Text { text: "Manual command mode"; font.family: "Michroma"; font.pixelSize: 11; color: Qt.lighter(root.subtext0, 1.2) }
                                     }
+
+                                    Item { Layout.fillWidth: true }
 
                                     RowLayout {
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        Layout.preferredWidth: 132
+                                        Layout.fillWidth: false
                                         spacing: 8
                                         Text { text: root.statusDotText(root.openclawState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.openclawState) }
-                                        Text { text: root.stateLabel(root.openclawState, root.openclawAvailable); font.family: "Michroma"; font.pixelSize: 9; color: root.subtext0 }
+                                        Text { text: root.shortStateLabel(root.openclawState, root.openclawAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.openclawSwitch
                                             enabled: root.serviceSwitchEnabled(root.openclawAvailable, root.openclawState)
@@ -724,22 +943,61 @@ Item {
 
                                 TextField {
                                     Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: 11
                                     placeholderText: "Start command"
                                     text: cfg.openclawStartCmd
+                                    color: root.text
+                                    placeholderTextColor: root.subtext0
+                                    leftPadding: 8
+                                    rightPadding: 8
+                                    background: Rectangle {
+                                        radius: 8
+                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                        border.width: 1
+                                        border.color: root.surface2
+                                    }
                                     onEditingFinished: cfg.openclawStartCmd = text.trim() === "" ? "openclaw gateway --port 18789" : text
                                 }
 
                                 TextField {
                                     Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: 11
                                     placeholderText: "Process match regex"
                                     text: cfg.openclawMatch
+                                    color: root.text
+                                    placeholderTextColor: root.subtext0
+                                    leftPadding: 8
+                                    rightPadding: 8
+                                    background: Rectangle {
+                                        radius: 8
+                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                        border.width: 1
+                                        border.color: root.surface2
+                                    }
                                     onEditingFinished: cfg.openclawMatch = text.trim() === "" ? "openclaw.*gateway" : text
                                 }
 
                                 TextField {
                                     Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: 11
                                     placeholderText: "Stop command (optional)"
                                     text: cfg.openclawStopCmd
+                                    color: root.text
+                                    placeholderTextColor: root.subtext0
+                                    leftPadding: 8
+                                    rightPadding: 8
+                                    background: Rectangle {
+                                        radius: 8
+                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
+                                        border.width: 1
+                                        border.color: root.surface2
+                                    }
                                     onEditingFinished: cfg.openclawStopCmd = text
                                 }
 
@@ -748,16 +1006,13 @@ Item {
                                     wrapMode: Text.Wrap
                                     text: root.openclawMessage
                                     font.family: "Michroma"
-                                    font.pixelSize: 10
-                                    color: root.subtext0
+                                    font.pixelSize: 11
+                                    color: root.text
+                                    visible: root.openclawState === "failed" || root.openclawState === "starting"
                                 }
                             }
                         }
 
-                        Item {
-                            width: parent.width
-                            height: 8
-                        }
                     }
                 }
             }

@@ -52,3 +52,7 @@ output_path = "/tmp/foot-matugen-colors.ini"
 [templates.gtk4]
 input_path = "~/.config/matugen/templates/gtk4.css.template"
 output_path = "~/.config/gtk-4.0/gtk.css"
+
+[templates.nuclear]
+input_path = "~/.config/matugen/templates/nuclear.css.template"
+output_path = "~/.config/nuclear/matugen.css"

@@ -95,8 +95,8 @@ Item {
             { k1: "SHIFT", k2: "PRINT", action: I18n.s("Screenshot (Edit)"), cmd: "bash ~/.config/hypr/scripts/screenshot.sh --edit" },
             { k1: "ALT+SHIFT", k2: "", action: I18n.s("Switch Keyboard Layout"), cmd: "hyprctl switchxkblayout main next" },
             
-            { k1: "SUPER", k2: "W", action: I18n.s("Toggle Wallpaper Picker"), cmd: "mados-wallpaper-picker toggle" },
-            { k1: "SUPER+CTRL", k2: "W", action: I18n.s("Search Wallpapers on Web"), cmd: "mados-wallpaper-picker web" },
+            { k1: "SUPER", k2: "W", action: I18n.s("Toggle Wallpaper Picker"), cmd: "skwd-wall" },
+            { k1: "SUPER+CTRL", k2: "W", action: I18n.s("Search Wallpapers on Web"), cmd: "skwd-wall" },
             { k1: "SUPER", k2: "R", action: I18n.s("Toggle Music Widget"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle music" },
             { k1: "SUPER", k2: "B", action: I18n.s("Toggle Battery Widget"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle battery" },
             { k1: "SUPER", k2: "S", action: I18n.s("Toggle Calendar Widget"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle calendar" },
@@ -659,7 +659,7 @@ Item {
                                         id: modMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor 
                                         onClicked: {
                                             if (model.target === "wallpaper")
-                                                Quickshell.execDetached(["bash", "-lc", "mados-wallpaper-picker toggle"]);
+                                                Quickshell.execDetached(["bash", "-lc", "skwd-wall"]);
                                             else
                                                 Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/qs_manager.sh", "toggle", model.target]);
                                         }

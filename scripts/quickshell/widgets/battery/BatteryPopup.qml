@@ -42,6 +42,10 @@ Item {
     
     property int upHours: 0
     property int upMins: 0
+    property int cpuUsage: 0
+    property int ramUsage: 0
+    property int diskUsage: 0
+    property int sysTemp: 0
 
     property real sysVolume: 0
     property bool sysMuted: false
@@ -57,9 +61,11 @@ Item {
     Timer { id: briSyncDelay; interval: 800; onTriggered: window.isDraggingBri = false; triggeredOnStart: true; }
 
     readonly property bool isCharging: batStatus === "Charging"
+    readonly property bool noBatteryHardware: batCapacity === 0 && batStatus.toLowerCase() === "unknown"
 
     // Unified hue for Battery
     readonly property color batColorStart: {
+        if (noBatteryHardware) return window.sapphire;
         if (isCharging) return window.green;
         if (batCapacity >= 70) return window.blue;
         if (batCapacity >= 30) return window.yellow;
@@ -78,6 +84,7 @@ Item {
     // Ambient Blobs - Based strictly on aesthetic pairs derived from battery state
     readonly property color ambientPrimary: window.batColorStart
     readonly property color ambientSecondary: {
+        if (noBatteryHardware) return window.teal;
         if (isCharging) return window.sapphire;
         if (batCapacity >= 70) return window.mauve;
         if (batCapacity >= 30) return window.peach;
@@ -109,13 +116,17 @@ Item {
             "powerprofilesctl get 2>/dev/null || echo 'balanced'; " +
             "awk '{print int($1/3600)\"h \"int(($1%3600)/60)\"m\"}' /proc/uptime 2>/dev/null || echo '0h 0m'; " +
             "wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{print int($2*100), ($3==\"[MUTED]\"?\"off\":\"on\")}' || echo '0 on'; " +
-            "brightnessctl -m 2>/dev/null | awk -F, '{print substr($4, 1, length($4)-1)}' || echo '0'"
+            "brightnessctl -m 2>/dev/null | awk -F, '{print substr($4, 1, length($4)-1)}' || echo '0'; " +
+            "vmstat 1 2 2>/dev/null | tail -1 | awk '{print 100 - $15}' || echo '0'; " +
+            "free -m 2>/dev/null | awk '/Mem:/ {print int($3/$2 * 100)}' || echo '0'; " +
+            "df -h / 2>/dev/null | awk 'NR==2 {print $5}' | tr -d '%' || echo '0'; " +
+            "temp=$(sensors 2>/dev/null | grep -m 1 -E 'Package id 0|Tctl|Tdie|edge|temp1' | grep -oE '\\+[0-9]+\\.[0-9]+' | head -n 1 | tr -d '+' | cut -d. -f1); [ -z \"$temp\" ] && temp=$(cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | head -n 1 | awk '{print int($1/1000)}'); echo \"${temp:-0}\""
         ]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
                 let lines = this.text.trim().split("\n");
-                if (lines.length >= 6) {
+                if (lines.length >= 10) {
                     if (window.batCapacity !== parseInt(lines[0])) {
                         window.batCapacity = parseInt(lines[0]);
                         window.animCapacity = window.batCapacity;
@@ -138,6 +149,11 @@ Item {
                     if (!window.isDraggingBri) {
                         window.sysBrightness = parseInt(lines[5]) || 0;
                     }
+
+                    window.cpuUsage = parseInt(lines[6]) || 0;
+                    window.ramUsage = parseInt(lines[7]) || 0;
+                    window.diskUsage = parseInt(lines[8]) || 0;
+                    window.sysTemp = parseInt(lines[9]) || 0;
                 }
             }
         }
@@ -436,7 +452,7 @@ Item {
                     radius: width / 2
                     z: 1
                     
-                    property bool isDangerState: !window.isCharging && window.batCapacity < 15
+                    property bool isDangerState: !window.noBatteryHardware && !window.isCharging && window.batCapacity < 15
                     
                     SequentialAnimation on scale {
                         loops: Animation.Infinite
@@ -594,6 +610,7 @@ Item {
                     ColumnLayout {
                         anchors.centerIn: parent
                         spacing: -2
+                        visible: !window.noBatteryHardware
                         
                         RowLayout {
                             Layout.alignment: Qt.AlignHCenter
@@ -628,6 +645,104 @@ Item {
                                     
                             text: window.batStatus.toUpperCase()
                             Behavior on color { ColorAnimation { duration: 300 } }
+                        }
+                    }
+
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 10
+                        visible: window.noBatteryHardware
+
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            font.family: "Michroma"
+                            font.weight: Font.Black
+                            font.pixelSize: 12
+                            color: window.overlay1
+                            text: "DESKTOP MONITOR"
+                        }
+
+                        GridLayout {
+                            Layout.alignment: Qt.AlignHCenter
+                            columns: 2
+                            rowSpacing: 10
+                            columnSpacing: 10
+
+                            Rectangle {
+                                Layout.preferredWidth: 110
+                                Layout.preferredHeight: 62
+                                radius: 10
+                                color: Qt.rgba(window.surface1.r, window.surface1.g, window.surface1.b, 0.35)
+                                border.width: 1
+                                border.color: Qt.rgba(window.overlay1.r, window.overlay1.g, window.overlay1.b, 0.35)
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+                                    spacing: 3
+                                    Text { text: "CPU"; font.family: "Michroma"; font.pixelSize: 9; color: window.overlay1 }
+                                    Text { text: window.cpuUsage + "%"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: window.text }
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 110
+                                Layout.preferredHeight: 62
+                                radius: 10
+                                color: Qt.rgba(window.surface1.r, window.surface1.g, window.surface1.b, 0.35)
+                                border.width: 1
+                                border.color: Qt.rgba(window.overlay1.r, window.overlay1.g, window.overlay1.b, 0.35)
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+                                    spacing: 3
+                                    Text { text: "RAM"; font.family: "Michroma"; font.pixelSize: 9; color: window.overlay1 }
+                                    Text { text: window.ramUsage + "%"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: window.text }
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 110
+                                Layout.preferredHeight: 62
+                                radius: 10
+                                color: Qt.rgba(window.surface1.r, window.surface1.g, window.surface1.b, 0.35)
+                                border.width: 1
+                                border.color: Qt.rgba(window.overlay1.r, window.overlay1.g, window.overlay1.b, 0.35)
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+                                    spacing: 3
+                                    Text { text: "DISK"; font.family: "Michroma"; font.pixelSize: 9; color: window.overlay1 }
+                                    Text { text: window.diskUsage + "%"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: window.text }
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.preferredWidth: 110
+                                Layout.preferredHeight: 62
+                                radius: 10
+                                color: Qt.rgba(window.surface1.r, window.surface1.g, window.surface1.b, 0.35)
+                                border.width: 1
+                                border.color: Qt.rgba(window.overlay1.r, window.overlay1.g, window.overlay1.b, 0.35)
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    anchors.margins: 8
+                                    spacing: 3
+                                    Text { text: "TEMP"; font.family: "Michroma"; font.pixelSize: 9; color: window.overlay1 }
+                                    Text { text: window.sysTemp + "°C"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: window.text }
+                                }
+                            }
+                        }
+
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            font.family: "Michroma"
+                            font.pixelSize: 10
+                            color: window.overlay0
+                            text: "No battery detected"
                         }
                     }
                 }

@@ -98,7 +98,7 @@ last_active_ws="$(get_active_workspace_id)"
 while true; do
     while read -r line; do
         case "$line" in
-            workspace*|focusedmon*|activewindow*|createwindow*|closewindow*|movewindow*|destroyworkspace*)
+            workspace*|focusedmon*|destroyworkspace*)
 
                 # -> THE FIX <-
                 # Hyprland emits HUNDREDS of events a second when you move/resize windows.

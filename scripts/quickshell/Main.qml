@@ -20,6 +20,10 @@ FloatingWindow {
         Quickshell.execDetached(["bash", "-c", `hyprctl dispatch resizewindowpixel "exact 1 1,title:^(qs-master)$" && hyprctl dispatch movewindowpixel "exact -5000 -5000,title:^(qs-master)$"`]);
     }
 
+    function parkHiddenWindow() {
+        Quickshell.execDetached(["bash", "-c", `hyprctl dispatch resizewindowpixel "exact 1 1,title:^(qs-master)$" && hyprctl dispatch movewindowpixel "exact -5000 -5000,title:^(qs-master)$"`]);
+    }
+
     // Dynamic monitor tracking
     property int activeMx: 0
     property int activeMy: 0
@@ -47,6 +51,8 @@ FloatingWindow {
 
     property real animW: 1
     property real animH: 1
+    property string lastWorkspaceId: ""
+    property double suppressOpenUntilMs: 0
     property real uiScale: 0.75
     property real widgetOpacity: 0.90
 
@@ -279,6 +285,34 @@ FloatingWindow {
         }
     }
 
+    Process {
+        id: workspacePoller
+        command: ["bash", "-c", "hyprctl activeworkspace -j 2>/dev/null | jq -r '.id // empty'"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let wsId = this.text.trim();
+                if (wsId === "") return;
+
+                if (masterWindow.lastWorkspaceId !== "" && masterWindow.lastWorkspaceId !== wsId) {
+                    masterWindow.suppressOpenUntilMs = Date.now() + 500;
+                    if (masterWindow.currentActive !== "hidden" || masterWindow.isVisible) {
+                        switchWidget("hidden", "");
+                    }
+                }
+
+                masterWindow.lastWorkspaceId = wsId;
+            }
+        }
+    }
+
+    Timer {
+        interval: 220
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: { if (!workspacePoller.running) workspacePoller.running = true; }
+    }
+
     Timer {
         interval: 150; running: true; repeat: true
         onTriggered: { if (!ipcPoller.running) ipcPoller.running = true; }
@@ -298,6 +332,10 @@ FloatingWindow {
                 let parts = rawCmd.split(":");
                 let cmd = parts[0];
                 let arg = parts.length > 1 ? parts[1] : "";
+
+                if (cmd !== "close" && Date.now() < masterWindow.suppressOpenUntilMs) {
+                    return;
+                }
 
                 // Ignore workspace-only commands (1-9) from workspace clicks
                 if (/^[0-9]+$/.test(cmd)) return;
@@ -342,10 +380,20 @@ FloatingWindow {
             masterWindow.currentActive = "hidden";
             widgetStack.clear();
             masterWindow.disableMorph = false;
-            
+
             // Banished safely back to the shadow realm off-screen
-            let cmd = `hyprctl dispatch resizewindowpixel "exact 1 1,title:^(qs-master)$" && hyprctl dispatch movewindowpixel "exact -5000 -5000,title:^(qs-master)$"`;
-            Quickshell.execDetached(["bash", "-c", cmd]);
+            parkHiddenWindow();
+        }
+    }
+
+    Timer {
+        interval: 700
+        running: true
+        repeat: true
+        onTriggered: {
+            if (masterWindow.currentActive === "hidden" && !masterWindow.isVisible) {
+                parkHiddenWindow();
+            }
         }
     }
 }

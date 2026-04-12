@@ -90,35 +90,35 @@ QtObject {
             "es": "No se encontraron fondos", "en": "No wallpapers found", "fr": "Aucun fond trouve", "de": "Keine Hintergrunde gefunden", "it": "Nessuno sfondo trovato", "pt": "Nenhum papel de parede encontrado", "ru": "Oboi ne naideny", "ja": "No wallpapers found", "zh": "No wallpapers found"
         },
         "About": {
-            "es": "About", "en": "About", "fr": "About", "de": "About", "it": "About", "pt": "About", "ru": "About", "ja": "About", "zh": "About"
+            "es": "Acerca de", "en": "About", "fr": "A propos", "de": "Uber", "it": "Info", "pt": "Sobre", "ru": "O programme", "ja": "について", "zh": "关于"
         },
         "Adjust Brightness": {
-            "es": "Adjust Brightness", "en": "Adjust Brightness", "fr": "Adjust Brightness", "de": "Adjust Brightness", "it": "Adjust Brightness", "pt": "Adjust Brightness", "ru": "Adjust Brightness", "ja": "Adjust Brightness", "zh": "Adjust Brightness"
+            "es": "Ajustar brillo", "en": "Adjust Brightness", "fr": "Ajuster la luminosite", "de": "Helligkeit anpassen", "it": "Regola luminosita", "pt": "Ajustar brilho", "ru": "Nastroit yarkost", "ja": "明るさを調整", "zh": "调整亮度"
         },
         "Adjust Volume": {
-            "es": "Adjust Volume", "en": "Adjust Volume", "fr": "Adjust Volume", "de": "Adjust Volume", "it": "Adjust Volume", "pt": "Adjust Volume", "ru": "Adjust Volume", "ja": "Adjust Volume", "zh": "Adjust Volume"
+            "es": "Ajustar volumen", "en": "Adjust Volume", "fr": "Ajuster le volume", "de": "Lautstarke anpassen", "it": "Regola volume", "pt": "Ajustar volume", "ru": "Nastroit gladkost", "ja": "音量を調整", "zh": "调整音量"
         },
         "App Launcher": {
-            "es": "App Launcher", "en": "App Launcher", "fr": "App Launcher", "de": "App Launcher", "it": "App Launcher", "pt": "App Launcher", "ru": "App Launcher", "ja": "App Launcher", "zh": "App Launcher"
+            "es": "Lanzador de apps", "en": "App Launcher", "fr": "Lanceur d'apps", "de": "App Launcher", "it": "Lanciatore app", "pt": "Lancador de apps", "ru": "Zapusk prilozhenii", "ja": "アプリランチャー", "zh": "应用启动器"
         },
 
         "Caps Lock OSD": {
-            "es": "Caps Lock OSD", "en": "Caps Lock OSD", "fr": "Caps Lock OSD", "de": "Caps Lock OSD", "it": "Caps Lock OSD", "pt": "Caps Lock OSD", "ru": "Caps Lock OSD", "ja": "Caps Lock OSD", "zh": "Caps Lock OSD"
+            "es": "Bloq Mayus OSD", "en": "Caps Lock OSD", "fr": "Verr Maj OSD", "de": "Feststelltaste OSD", "it": "Bloc Maius OSD", "pt": "Bloq Maius OSD", "ru": "VklKlav OSD", "ja": "Caps Lock OSD", "zh": "大写锁定 OSD"
         },
         "Click any card to toggle the live module overlay.": {
-            "es": "Click any card to toggle the live module overlay.", "en": "Click any card to toggle the live module overlay.", "fr": "Click any card to toggle the live module overlay.", "de": "Click any card to toggle the live module overlay.", "it": "Click any card to toggle the live module overlay.", "pt": "Click any card to toggle the live module overlay.", "ru": "Click any card to toggle the live module overlay.", "ja": "Click any card to toggle the live module overlay.", "zh": "Click any card to toggle the live module overlay."
+            "es": "Haz clic en cualquier tarjeta para alternar el modulo.", "en": "Click any card to toggle the live module overlay.", "fr": "Cliquez sur une carte pour basculer le module.", "de": "Klicke auf eine Karte um das Modul umzuschalten.", "it": "Fai clic su una scheda per attivare il modulo.", "pt": "Clique em qualquer cartao para alternar o modulo.", "ru": "Nazhmite na kartu dlya peregruzki modulia.", "ja": "カードをクリックしてモジュールを切り替え", "zh": "点击任意卡片切换模块"
         },
         "Click any row below to instantly execute the keybind command.": {
-            "es": "Click any row below to instantly execute the keybind command.", "en": "Click any row below to instantly execute the keybind command.", "fr": "Click any row below to instantly execute the keybind command.", "de": "Click any row below to instantly execute the keybind command.", "it": "Click any row below to instantly execute the keybind command.", "pt": "Click any row below to instantly execute the keybind command.", "ru": "Click any row below to instantly execute the keybind command.", "ja": "Click any row below to instantly execute the keybind command.", "zh": "Click any row below to instantly execute the keybind command."
+            "es": "Haz clic en cualquier fila para ejecutar el atajo.", "en": "Click any row below to instantly execute the keybind command.", "fr": "Cliquez sur une ligne pour executer le raccourci.", "de": "Klicke auf eine Zeile um die Tastenkombination auszufuhren.", "it": "Fai clic su una riga per eseguire il collegamento.", "pt": "Clique em qualquer linha para executar o atalho.", "ru": "Nazhmite na stroku dlya vypolneniya yarlika.", "ja": "行をクリックしてショートカットを実行", "zh": "点击任意行执行快捷键"
         },
         "Clipboard History": {
-            "es": "Clipboard History", "en": "Clipboard History", "fr": "Clipboard History", "de": "Clipboard History", "it": "Clipboard History", "pt": "Clipboard History", "ru": "Clipboard History", "ja": "Clipboard History", "zh": "Clipboard History"
+            "es": "Historial del portapapeles", "en": "Clipboard History", "fr": "Historique du presse-papiers", "de": "Zwischenablageverlauf", "it": "Cronologia appunti", "pt": "Historico da area de transferencia", "ru": "Istoricheskii bufer", "ja": "クリップボード履歴", "zh": "剪贴板历史"
         },
         "Close Active Window/Widget": {
-            "es": "Close Active Window/Widget", "en": "Close Active Window/Widget", "fr": "Close Active Window/Widget", "de": "Close Active Window/Widget", "it": "Close Active Window/Widget", "pt": "Close Active Window/Widget", "ru": "Close Active Window/Widget", "ja": "Close Active Window/Widget", "zh": "Close Active Window/Widget"
+            "es": "Cerrar ventana/widget activo", "en": "Close Active Window/Widget", "fr": "Fermer la fenetre/widget active", "de": "Aktives Fenster/Widget schliessen", "it": "Chiudi finestra/widget attivo", "pt": "Fechar janela/widget ativo", "ru": "Zakryt aktivnoe okno/vidzhet", "ja": "アクティブウィンドウ/ウィジェットを閉じる", "zh": "关闭活动窗口/小部件"
         },
         "Configuration": {
-            "es": "Configuration", "en": "Configuration", "fr": "Configuration", "de": "Configuration", "it": "Configuration", "pt": "Configuration", "ru": "Configuration", "ja": "Configuration", "zh": "Configuration"
+            "es": "Configuracion", "en": "Configuration", "fr": "Configuration", "de": "Konfiguration", "it": "Configurazione", "pt": "Configuracao", "ru": "Konfiguratsiya", "ja": "設定", "zh": "配置"
         },
         "Imperative": {
             "es": "Imperative", "en": "Imperative", "fr": "Imperative", "de": "Imperative", "it": "Imperative", "pt": "Imperative", "ru": "Imperative", "ja": "Imperative", "zh": "Imperative"
@@ -133,49 +133,52 @@ QtObject {
             "es": "Fork with custom modifications", "en": "Fork with custom modifications", "fr": "Fork with custom modifications", "de": "Fork with custom modifications", "it": "Fork with custom modifications", "pt": "Fork with custom modifications", "ru": "Fork with custom modifications", "ja": "Fork with custom modifications", "zh": "Fork with custom modifications"
         },
         "Interactive Modules": {
-            "es": "Interactive Modules", "en": "Interactive Modules", "fr": "Interactive Modules", "de": "Interactive Modules", "it": "Interactive Modules", "pt": "Interactive Modules", "ru": "Interactive Modules", "ja": "Interactive Modules", "zh": "Interactive Modules"
+            "es": "Modulos interactivos", "en": "Interactive Modules", "fr": "Modules interactifs", "de": "Interaktive Module", "it": "Moduli interattivi", "pt": "Modulos interativos", "ru": "Interaktivnyye modyli", "ja": "インタラクティブモジュール", "zh": "交互模块"
         },
         "Keybinds": {
-            "es": "Keybinds", "en": "Keybinds", "fr": "Keybinds", "de": "Keybinds", "it": "Keybinds", "pt": "Keybinds", "ru": "Keybinds", "ja": "Keybinds", "zh": "Keybinds"
+            "es": "Atajos de teclado", "en": "Keybinds", "fr": "Raccourcis clavier", "de": "Tastenkombinationen", "it": "Scorciatoie da tastiera", "pt": "Atalhos de teclado", "ru": "Goryachie klavishi", "ja": "キーボードショートカット", "zh": "键盘绑定"
         },
         "Lock Screen": {
-            "es": "Lock Screen", "en": "Lock Screen", "fr": "Lock Screen", "de": "Lock Screen", "it": "Lock Screen", "pt": "Lock Screen", "ru": "Lock Screen", "ja": "Lock Screen", "zh": "Lock Screen"
+            "es": "Bloquear pantalla", "en": "Lock Screen", "fr": "Verrouiller l'ecran", "de": "Bildschirm sperren", "it": "Blocca schermo", "pt": "Bloquear tela", "ru": "Blokirovka ekrana", "ja": "画面をロック", "zh": "锁定屏幕"
         },
         "Matugen": {
             "es": "Matugen", "en": "Matugen", "fr": "Matugen", "de": "Matugen", "it": "Matugen", "pt": "Matugen", "ru": "Matugen", "ja": "Matugen", "zh": "Matugen"
         },
         "Matugen Core": {
-            "es": "Matugen Core", "en": "Matugen Core", "fr": "Matugen Core", "de": "Matugen Core", "it": "Matugen Core", "pt": "Matugen Core", "ru": "Matugen Core", "ja": "Matugen Core", "zh": "Matugen Core"
+            "es": "Nucleo Matugen", "en": "Matugen Core", "fr": "Noyau Matugen", "de": "Matugen-Kern", "it": "Nucleo Matugen", "pt": "Nucleo Matugen", "ru": " Yadro Matugen", "ja": "Matugenコア", "zh": "Matugen核心"
         },
         "Modules": {
-            "es": "Modules", "en": "Modules", "fr": "Modules", "de": "Modules", "it": "Modules", "pt": "Modules", "ru": "Modules", "ja": "Modules", "zh": "Modules"
+            "es": "Modulos", "en": "Modules", "fr": "Modules", "de": "Module", "it": "Moduli", "pt": "Modulos", "ru": "Modyli", "ja": "モジュール", "zh": "模块"
         },
         "Move Focus": {
-            "es": "Move Focus", "en": "Move Focus", "fr": "Move Focus", "de": "Move Focus", "it": "Move Focus", "pt": "Move Focus", "ru": "Move Focus", "ja": "Move Focus", "zh": "Move Focus"
+            "es": "Mover foco", "en": "Move Focus", "fr": "Deplacer le focus", "de": "Fokus bewegen", "it": "Sposta focus", "pt": "Mover foco", "ru": "Peremestit fokus", "ja": "フォーカスを移動", "zh": "移动焦点"
         },
         "Move Window": {
-            "es": "Move Window", "en": "Move Window", "fr": "Move Window", "de": "Move Window", "it": "Move Window", "pt": "Move Window", "ru": "Move Window", "ja": "Move Window", "zh": "Move Window"
+            "es": "Mover ventana", "en": "Move Window", "fr": "Deplacer la fenetre", "de": "Fenster bewegen", "it": "Sposta finestra", "pt": "Mover janela", "ru": "Peremestit okno", "ja": "ウィンドウを移動", "zh": "移动窗口"
         },
         "Mute Microphone": {
-            "es": "Mute Microphone", "en": "Mute Microphone", "fr": "Mute Microphone", "de": "Mute Microphone", "it": "Mute Microphone", "pt": "Mute Microphone", "ru": "Mute Microphone", "ja": "Mute Microphone", "zh": "Mute Microphone"
+            "es": "Silenciar microfono", "en": "Mute Microphone", "fr": "Couper le microphone", "de": "Mikrofon stummschalten", "it": "Muta microfono", "pt": "Silenciar microfone", "ru": "Otклюchit mikrofon", "ja": "マイクをミュート", "zh": "静音麦克风"
         },
         "Mute Volume": {
-            "es": "Mute Volume", "en": "Mute Volume", "fr": "Mute Volume", "de": "Mute Volume", "it": "Mute Volume", "pt": "Mute Volume", "ru": "Mute Volume", "ja": "Mute Volume", "zh": "Mute Volume"
+            "es": "Silenciar volumen", "en": "Mute Volume", "fr": "Couper le son", "de": "Ton stummschalten", "it": "Muta volume", "pt": "Silenciar volume", "ru": "Otклюchit zvuk", "ja": "ミュート音量", "zh": "静音"
         },
         "Navigation & Control": {
-            "es": "Navigation & Control", "en": "Navigation & Control", "fr": "Navigation & Control", "de": "Navigation & Control", "it": "Navigation & Control", "pt": "Navigation & Control", "ru": "Navigation & Control", "ja": "Navigation & Control", "zh": "Navigation & Control"
+            "es": "Navegacion y control", "en": "Navigation & Control", "fr": "Navigation et controle", "de": "Navigation und Steuerung", "it": "Navigazione e controllo", "pt": "Navegacao e controle", "ru": "Navigatsiya i upravleniye", "ja": "ナビゲーションと制御", "zh": "导航与控制"
         },
         "Open Firefox": {
-            "es": "Open Firefox", "en": "Open Firefox", "fr": "Open Firefox", "de": "Open Firefox", "it": "Open Firefox", "pt": "Open Firefox", "ru": "Open Firefox", "ja": "Open Firefox", "zh": "Open Firefox"
+            "es": "Abrir Firefox", "en": "Open Firefox", "fr": "Ouvrir Firefox", "de": "Firefox offnen", "it": "Apri Firefox", "pt": "Abrir Firefox", "ru": "Otkryt Firefox", "ja": "Firefoxを開く", "zh": "打开Firefox"
         },
         "Open Nautilus": {
-            "es": "Open Nautilus", "en": "Open Nautilus", "fr": "Open Nautilus", "de": "Open Nautilus", "it": "Open Nautilus", "pt": "Open Nautilus", "ru": "Open Nautilus", "ja": "Open Nautilus", "zh": "Open Nautilus"
+            "es": "Abrir Nautilus", "en": "Open Nautilus", "fr": "Ouvrir Nautilus", "de": "Nautilus offnen", "it": "Apri Nautilus", "pt": "Abrir Nautilus", "ru": "Otkryt Nautilus", "ja": "Nautilusを開く", "zh": "打开Nautilus"
         },
         "Open Terminal (Kitty)": {
             "es": "Open Terminal (Kitty)", "en": "Open Terminal (Kitty)", "fr": "Open Terminal (Kitty)", "de": "Open Terminal (Kitty)", "it": "Open Terminal (Kitty)", "pt": "Open Terminal (Kitty)", "ru": "Open Terminal (Kitty)", "ja": "Open Terminal (Kitty)", "zh": "Open Terminal (Kitty)"
         },
+        "Open Terminal (Foot)": {
+            "es": "Abrir Terminal (Foot)", "en": "Open Terminal (Foot)", "fr": "Ouvrir Terminal (Foot)", "de": "Terminal (Foot) öffnen", "it": "Apri Terminal (Foot)", "pt": "Abrir Terminal (Foot)", "ru": "Otkryt Terminal (Foot)", "ja": "ターミナルを開く (Foot)", "zh": "打开终端 (Foot)"
+        },
         "Play/Pause Media": {
-            "es": "Play/Pause Media", "en": "Play/Pause Media", "fr": "Play/Pause Media", "de": "Play/Pause Media", "it": "Play/Pause Media", "pt": "Play/Pause Media", "ru": "Play/Pause Media", "ja": "Play/Pause Media", "zh": "Play/Pause Media"
+            "es": "Reproducir/pausar multimedia", "en": "Play/Pause Media", "fr": "Lecture/pause media", "de": "Medien abspielen/pausieren", "it": "Riproduci/pausa media", "pt": "Reproduzir/pausar midia", "ru": "Vosproizvedeniye/pauza media", "ja": "メディアの再生/一時停止", "zh": "播放/暂停媒体"
         },
         "Resize Window": {
             "es": "Resize Window", "en": "Resize Window", "fr": "Resize Window", "de": "Resize Window", "it": "Resize Window", "pt": "Resize Window", "ru": "Resize Window", "ja": "Resize Window", "zh": "Resize Window"
@@ -183,29 +186,35 @@ QtObject {
         "SKWD Shell and Wallpaper manager": {
             "es": "SKWD Shell and Wallpaper manager", "en": "SKWD Shell and Wallpaper manager", "fr": "SKWD Shell and Wallpaper manager", "de": "SKWD Shell and Wallpaper manager", "it": "SKWD Shell and Wallpaper manager", "pt": "SKWD Shell and Wallpaper manager", "ru": "SKWD Shell and Wallpaper manager", "ja": "SKWD Shell and Wallpaper manager", "zh": "SKWD Shell and Wallpaper manager"
         },
+        "Close Guide": {
+            "es": "Cerrar guía", "en": "Close Guide", "fr": "Fermer le guide", "de": "Leitfaden schließen", "it": "Chiudi guida", "pt": "Fechar guia", "ru": "Zakryt spravochnik", "ja": "ガイドを閉じる", "zh": "关闭指南"
+        },
+        "madOS": {
+            "es": "madOS", "en": "madOS", "fr": "madOS", "de": "madOS", "it": "madOS", "pt": "madOS", "ru": "madOS", "ja": "madOS", "zh": "madOS"
+        },
         "Screenshot": {
-            "es": "Screenshot", "en": "Screenshot", "fr": "Screenshot", "de": "Screenshot", "it": "Screenshot", "pt": "Screenshot", "ru": "Screenshot", "ja": "Screenshot", "zh": "Screenshot"
+            "es": "Captura de pantalla", "en": "Screenshot", "fr": "Capture d'ecran", "de": "Bildschirmfoto", "it": "Screenshot", "pt": "Captura de tela", "ru": "Snyekekran", "ja": "スクリーンショット", "zh": "截图"
         },
         "Screenshot (Edit)": {
-            "es": "Screenshot (Edit)", "en": "Screenshot (Edit)", "fr": "Screenshot (Edit)", "de": "Screenshot (Edit)", "it": "Screenshot (Edit)", "pt": "Screenshot (Edit)", "ru": "Screenshot (Edit)", "ja": "Screenshot (Edit)", "zh": "Screenshot (Edit)"
+            "es": "Captura de pantalla (editar)", "en": "Screenshot (Edit)", "fr": "Capture d'ecran (editer)", "de": "Bildschirmfoto (bearbeiten)", "it": "Screenshot (modifica)", "pt": "Captura de tela (editar)", "ru": "Snyekekran (redaktirovat)", "ja": "スクリーンショット (編集)", "zh": "截图 (编辑)"
         },
         "Search": {
             "es": "Search", "en": "Search", "fr": "Search", "de": "Search", "it": "Search", "pt": "Search", "ru": "Search", "ja": "Search", "zh": "Search"
         },
         "Search Wallpapers on Web": {
-            "es": "Search Wallpapers on Web", "en": "Search Wallpapers on Web", "fr": "Search Wallpapers on Web", "de": "Search Wallpapers on Web", "it": "Search Wallpapers on Web", "pt": "Search Wallpapers on Web", "ru": "Search Wallpapers on Web", "ja": "Search Wallpapers on Web", "zh": "Search Wallpapers on Web"
+            "es": "Buscar fondos en la web", "en": "Search Wallpapers on Web", "fr": "Chercher fonds sur le web", "de": "Hintergrunde im Web suchen", "it": "Cerca sfondi sul web", "pt": "Buscar fundos na web", "ru": "Iskat oboi v internete", "ja": "ウェブで壁纸を検索", "zh": "在网上搜索壁纸"
         },
         "Switch Keyboard Layout": {
-            "es": "Switch Keyboard Layout", "en": "Switch Keyboard Layout", "fr": "Switch Keyboard Layout", "de": "Switch Keyboard Layout", "it": "Switch Keyboard Layout", "pt": "Switch Keyboard Layout", "ru": "Switch Keyboard Layout", "ja": "Switch Keyboard Layout", "zh": "Switch Keyboard Layout"
+            "es": "Cambiar layout de teclado", "en": "Switch Keyboard Layout", "fr": "Changer la disposition clavier", "de": "Tastaturlayout wechseln", "it": "Cambia layout tastiera", "pt": "Trocar layout do teclado", "ru": "Smenit raskladku klaviatury", "ja": "キーボードレイアウトを切り替え", "zh": "切换键盘布局"
         },
         "System Architecture": {
-            "es": "System Architecture", "en": "System Architecture", "fr": "System Architecture", "de": "System Architecture", "it": "System Architecture", "pt": "System Architecture", "ru": "System Architecture", "ja": "System Architecture", "zh": "System Architecture"
+            "es": "Arquitectura del sistema", "en": "System Architecture", "fr": "Architecture du systeme", "de": "Systemarchitektur", "it": "Architettura del sistema", "pt": "Arquitetura do sistema", "ru": "Arkhitektura sistemy", "ja": "システムアーキテクチャ", "zh": "系统架构"
         },
         "Templates": {
-            "es": "Templates", "en": "Templates", "fr": "Templates", "de": "Templates", "it": "Templates", "pt": "Templates", "ru": "Templates", "ja": "Templates", "zh": "Templates"
+            "es": "Plantillas", "en": "Templates", "fr": "Modeles", "de": "Vorlagen", "it": "Modelli", "pt": "Modelos", "ru": "Shablony", "ja": "テンプレート", "zh": "模板"
         },
         "Theming Engine": {
-            "es": "Theming Engine", "en": "Theming Engine", "fr": "Theming Engine", "de": "Theming Engine", "it": "Theming Engine", "pt": "Theming Engine", "ru": "Theming Engine", "ja": "Theming Engine", "zh": "Theming Engine"
+            "es": "Motor de temas", "en": "Theming Engine", "fr": "Moteur de themes", "de": "Theme-Engine", "it": "Motore di temi", "pt": "Motor de temas", "ru": "Dvizhok tem", "ja": "テーマエンジン", "zh": "主题引擎"
         },
         "Toggle Battery Widget": {
             "es": "Toggle Battery Widget", "en": "Toggle Battery Widget", "fr": "Toggle Battery Widget", "de": "Toggle Battery Widget", "it": "Toggle Battery Widget", "pt": "Toggle Battery Widget", "ru": "Toggle Battery Widget", "ja": "Toggle Battery Widget", "zh": "Toggle Battery Widget"
@@ -214,7 +223,7 @@ QtObject {
             "es": "Toggle Calendar Widget", "en": "Toggle Calendar Widget", "fr": "Toggle Calendar Widget", "de": "Toggle Calendar Widget", "it": "Toggle Calendar Widget", "pt": "Toggle Calendar Widget", "ru": "Toggle Calendar Widget", "ja": "Toggle Calendar Widget", "zh": "Toggle Calendar Widget"
         },
         "Toggle Floating": {
-            "es": "Toggle Floating", "en": "Toggle Floating", "fr": "Toggle Floating", "de": "Toggle Floating", "it": "Toggle Floating", "pt": "Toggle Floating", "ru": "Toggle Floating", "ja": "Toggle Floating", "zh": "Toggle Floating"
+            "es": "Alternar ventana flotante", "en": "Toggle Floating", "fr": "Basculer flottant", "de": "Schwebend umschalten", "it": "Attiva/disattiva flottante", "pt": "Alternar janela flutuante", "ru": "Pereklyuchit plavayushchee", "ja": "フローティングを切り替え", "zh": "切换浮动"
         },
         "Toggle FocusTime": {
             "es": "Toggle FocusTime", "en": "Toggle FocusTime", "fr": "Toggle FocusTime", "de": "Toggle FocusTime", "it": "Toggle FocusTime", "pt": "Toggle FocusTime", "ru": "Toggle FocusTime", "ja": "Toggle FocusTime", "zh": "Toggle FocusTime"
@@ -238,19 +247,19 @@ QtObject {
             "es": "Toggle Volume Widget", "en": "Toggle Volume Widget", "fr": "Toggle Volume Widget", "de": "Toggle Volume Widget", "it": "Toggle Volume Widget", "pt": "Toggle Volume Widget", "ru": "Toggle Volume Widget", "ja": "Toggle Volume Widget", "zh": "Toggle Volume Widget"
         },
         "Toggle Wallpaper Picker": {
-            "es": "Toggle Wallpaper Picker", "en": "Toggle Wallpaper Picker", "fr": "Toggle Wallpaper Picker", "de": "Toggle Wallpaper Picker", "it": "Toggle Wallpaper Picker", "pt": "Toggle Wallpaper Picker", "ru": "Toggle Wallpaper Picker", "ja": "Toggle Wallpaper Picker", "zh": "Toggle Wallpaper Picker"
+            "es": "Abrir selector de fondo", "en": "Toggle Wallpaper Picker", "fr": "Ouvrir le selecteur de fond", "de": "Hintergrundauswahl offnen", "it": "Apri selettore sfondo", "pt": "Abrir seletor de papel de parede", "ru": "Otkryt vybor oboyev", "ja": "壁纸ピッカーを開く", "zh": "打开壁纸选择器"
         },
         "Wallpaper": {
-            "es": "Wallpaper", "en": "Wallpaper", "fr": "Wallpaper", "de": "Wallpaper", "it": "Wallpaper", "pt": "Wallpaper", "ru": "Wallpaper", "ja": "Wallpaper", "zh": "Wallpaper"
+            "es": "Fondo de pantalla", "en": "Wallpaper", "fr": "Fond d'ecran", "de": "Hintergrund", "it": "Sfondo", "pt": "Papel de parede", "ru": "Oboi", "ja": "壁紙", "zh": "壁纸"
         },
         "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:": {
-            "es": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "en": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "fr": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "de": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "it": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "pt": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "ru": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "ja": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "zh": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:"
+            "es": "Cuando cambias el fondo, Matugen extrae los colores dominantes y los inyecta directamente en estos archivos de configuracion en tiempo real:", "en": "When you change wallpapers, Matugen extracts the dominant colors and injects them directly into these configuration files in real-time:", "fr": "Quand vous changez de fond, Matugen extrait les couleurs dominantes et les injecte dans ces fichiers de configuration en temps reel:", "de": "Wenn Sie Hintergrundbilder andern, extrahiert Matugen die dominanten Farben und injiziert sie in Echtzeit in diese Konfigurationsdateien:", "it": "Quando cambi lo sfondo, Matugen estrae i colori dominanti e li inietta direttamente in questi file di configurazione in tempo reale:", "pt": "Quando voce muda o papel de parede, o Matugen extrai as cores dominantes e as injeta diretamente nesses arquivos de configuracao em tempo real:", "ru": "kogda vy menyayete oboi, Matugen izvlekaet dominantnyye tsveta i vvodit ikh pryamo v eti konfiguratsionnyye fayly v realnom vremeni:", "ja": "壁纸を変更すると、Matugenは主要な色を抽出してこれらの構成ファイルに直接リアルタイムで注入します:", "zh": "当您更改壁纸时，Matugen会提取主色调并实时注入这些配置文件:"
         },
         "Window Switcher": {
-            "es": "Window Switcher", "en": "Window Switcher", "fr": "Window Switcher", "de": "Window Switcher", "it": "Window Switcher", "pt": "Window Switcher", "ru": "Window Switcher", "ja": "Window Switcher", "zh": "Window Switcher"
+            "es": "Cambiador de ventanas", "en": "Window Switcher", "fr": "Changeur de fenetres", "de": "Fensterwechsler", "it": "Cambiafinestre", "pt": "Trocador de janelas", "ru": "Pereklyuchatel okon", "ja": "ウィンドウスイッチャー", "zh": "窗口切换器"
         },
         "Workspaces (SUPER + 1-9)": {
-            "es": "Workspaces (SUPER + 1-9)", "en": "Workspaces (SUPER + 1-9)", "fr": "Workspaces (SUPER + 1-9)", "de": "Workspaces (SUPER + 1-9)", "it": "Workspaces (SUPER + 1-9)", "pt": "Workspaces (SUPER + 1-9)", "ru": "Workspaces (SUPER + 1-9)", "ja": "Workspaces (SUPER + 1-9)", "zh": "Workspaces (SUPER + 1-9)"
+            "es": "Espacios de trabajo (SUPER + 1-9)", "en": "Workspaces (SUPER + 1-9)", "fr": "Espaces de travail (SUPER + 1-9)", "de": "Arbeitsfacher (SUPER + 1-9)", "it": "Spazi di lavoro (SUPER + 1-9)", "pt": "Espacos de trabalho (SUPER + 1-9)", "ru": "Rabochiye prostranstva (SUPER + 1-9)", "ja": "ワークスペース (SUPER + 1-9)", "zh": "工作区 (SUPER + 1-9)"
         },
         "madOS Distro Author": {
             "es": "madOS Distro Author", "en": "madOS Distro Author", "fr": "madOS Distro Author", "de": "madOS Distro Author", "it": "madOS Distro Author", "pt": "madOS Distro Author", "ru": "madOS Distro Author", "ja": "madOS Distro Author", "zh": "madOS Distro Author"
@@ -368,6 +377,9 @@ QtObject {
         },
         "Action": {
             "es": "Accion", "en": "Action", "fr": "Action", "de": "Action", "it": "Action", "pt": "Action", "ru": "Action", "ja": "Action", "zh": "Action"
+        },
+        "Close": {
+            "es": "Cerrar", "en": "Close", "fr": "Fermer", "de": "Schliessen", "it": "Chiudi", "pt": "Fechar", "ru": "Zakryt", "ja": "閉じる", "zh": "关闭"
         },
         "No Device": {
             "es": "Sin dispositivo", "en": "No Device", "fr": "No Device", "de": "No Device", "it": "No Device", "pt": "No Device", "ru": "No Device", "ja": "No Device", "zh": "No Device"
@@ -833,7 +845,7 @@ QtObject {
         if (supportedLanguages.indexOf(lowered) >= 0)
             return lowered
 
-        var shortCode = lowered.split("_")[0]
+        var shortCode = lowered.split("_")[0].split(".")[0]
         if (supportedLanguages.indexOf(shortCode) >= 0)
             return shortCode
 

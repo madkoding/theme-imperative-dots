@@ -28,7 +28,7 @@ function getLayout(name, mx, my, mw, mh, scale) {
 
     let base = {
         // Right-aligned: pinned 20px from the right edge dynamically
-        "battery":   { w: s(480, ui), h: s(760, ui), rx: mw - s(500, ui), ry: s(70, ui), comp: "widgets/battery/BatteryPopup.qml" },
+        "battery":   { w: s(480, ui), h: s(760, ui), rx: mw - s(500, ui), ry: s(70, ui), comp: "widgets/battery/BatteryPopupRouter.qml" },
         "volume":    { w: s(480, ui), h: s(760, ui), rx: mw - s(500, ui), ry: s(70, ui), comp: "widgets/volume/VolumePopup.qml" },
         
         // Centered horizontally dynamically based on current screen width

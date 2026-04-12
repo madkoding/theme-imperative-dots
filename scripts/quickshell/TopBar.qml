@@ -100,6 +100,8 @@ PanelWindow {
     property string batIcon: "󰁹"
     property string batStatus: "Unknown"
     
+    property bool hasPendingNotifs: false
+    
     property string kbLayout: "us"
     
     ListModel { id: workspacesModel }
@@ -239,11 +241,11 @@ PanelWindow {
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();
-                console.log("DEBUG sys_info raw:", txt.substring(0, 200));
+                // console.log("DEBUG sys_info raw:", txt.substring(0, 200));
                 if (txt !== "") {
                     try {
                         let data = JSON.parse(txt);
-                        console.log("DEBUG audio:", JSON.stringify(data.audio));
+                        // console.log("DEBUG audio:", JSON.stringify(data.audio));
                         
                         // Targeted Updates
                         if (barWindow.wifiStatus !== data.wifi.status) barWindow.wifiStatus = data.wifi.status;
@@ -354,6 +356,28 @@ PanelWindow {
         }
     }
 
+    // SwayNC D-Bus subscription for notification count
+    Process {
+        id: swayncPoller
+        running: true
+        command: ["bash", "-c", "gdbus call --session --dest org.erikreider.swaync.cc --object-path /org/erikreider/swaync/cc --method org.erikreider.swaync.cc.NotificationCount 2>/dev/null | grep -o 'uint32 [0-9]*' | awk '{print $2}'"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let txt = this.text.trim();
+                let count = parseInt(txt);
+                barWindow.hasPendingNotifs = !isNaN(count) && count > 0;
+            }
+        }
+    }
+
+    Timer {
+        id: swayncPollerTimer
+        interval: 2000
+        running: true
+        repeat: true
+        onTriggered: swayncPoller.running = true
+    }
+
     // Native Qt Time Formatting
     Timer {
         interval: 1000; running: true; repeat: true; triggeredOnStart: true
@@ -434,41 +458,6 @@ PanelWindow {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh toggle launcher"])
-                }
-            }
-
-            // Notifications
-            Rectangle {
-                property bool isHovered: notifMouse.containsMouse
-                color: isHovered ? Qt.rgba(mocha.surface1.r, mocha.surface1.g, mocha.surface1.b, 0.95) : Qt.rgba(mocha.base.r, mocha.base.g, mocha.base.b, 0.75)
-                radius: 14
-                border.width: 1
-                border.color: Qt.rgba(mocha.text.r, mocha.text.g, mocha.text.b, isHovered ? 0.15 : 0.05)
-                Layout.preferredHeight: parent.moduleHeight
-                Layout.preferredWidth: 48
-
-                scale: isHovered ? 1.05 : 1.0
-                Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutExpo } }
-                Behavior on color { ColorAnimation { duration: 200 } }
-
-                Text {
-                    anchors.centerIn: parent
-                    text: ""
-                    font.family: "Iosevka Nerd Font"
-                    font.pixelSize: 18
-                    color: parent.isHovered ? mocha.yellow : mocha.text
-                    Behavior on color { ColorAnimation { duration: 200 } }
-                }
-
-                MouseArea {
-                    id: notifMouse
-                    anchors.fill: parent
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-                    hoverEnabled: true
-                    onClicked: (mouse) => {
-                        if (mouse.button === Qt.LeftButton) Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh toggle notifications"])
-                        if (mouse.button === Qt.RightButton) Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh open notifications dismiss"])
-                    }
                 }
             }
 
@@ -918,6 +907,57 @@ PanelWindow {
                     spacing: 8 
 
                     property int pillHeight: 34
+
+                    // Notifications Bell
+                    Rectangle {
+                        id: notifBell
+                        property bool isHovered: notifMouse.containsMouse
+                        
+                        radius: 10
+                        clip: true
+                        Layout.preferredHeight: sysLayout.pillHeight
+                        Layout.preferredWidth: barWindow.hasPendingNotifs || isHovered ? 48 : 40
+                        Behavior on Layout.preferredWidth { NumberAnimation { duration: 200 } }
+                        
+                        color: isHovered
+                            ? Qt.rgba(mocha.surface1.r, mocha.surface1.g, mocha.surface1.b, 0.6)
+                            : Qt.rgba(mocha.surface0.r, mocha.surface0.g, mocha.surface0.b, 0.4)
+                        
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 10
+                            visible: barWindow.hasPendingNotifs
+                            opacity: barWindow.hasPendingNotifs ? 1.0 : 0.0
+                            Behavior on opacity { NumberAnimation { duration: 200 } }
+                            gradient: Gradient {
+                                GradientStop { position: 0.0; color: Qt.lighter(mocha.yellow, 1.15) }
+                                GradientStop { position: 1.0; color: mocha.peach }
+                            }
+                        }
+                        
+                        Text {
+                            anchors.centerIn: parent
+                            text: ""
+                            font.family: "Iosevka Nerd Font"
+                            font.pixelSize: 16
+                            color: barWindow.hasPendingNotifs ? mocha.crust : (parent.isHovered ? mocha.yellow : mocha.text)
+                            Behavior on color { ColorAnimation { duration: 200 } }
+                        }
+
+                        MouseArea {
+                            id: notifMouse
+                            anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            hoverEnabled: true
+                            onClicked: (mouse) => {
+                                if (mouse.button === Qt.LeftButton) {
+                                    Quickshell.execDetached(["bash", "-c", "gdbus call --session --dest org.erikreider.swaync.cc --object-path /org/erikreider/swaync/cc --method org.erikreider.swaync.cc.ToggleVisibility"])
+                                } else if (mouse.button === Qt.RightButton) {
+                                    Quickshell.execDetached(["bash", "-c", "gdbus call --session --dest org.erikreider.swaync.cc --object-path /org/erikreider/swaync/cc --method org.erikreider.swaync.cc.CloseAllNotifications"])
+                                }
+                            }
+                        }
+                    }
 
                     // Help (keybinds)
                     Rectangle {
