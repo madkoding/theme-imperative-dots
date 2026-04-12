@@ -89,6 +89,8 @@ if [[ "$ACTION" =~ ^[0-9]+$ ]]; then
     WORKSPACE_NUM="$ACTION"
     MOVE_OPT="$2"
 
+    echo "close" > "$IPC_FILE"
+
     if [[ "$MOVE_OPT" == "move" ]]; then
         hyprctl dispatch movetoworkspace "$WORKSPACE_NUM"
     else
