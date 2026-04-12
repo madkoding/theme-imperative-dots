@@ -2,9 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import "../"
-import "../i18n"
-
+import "../../"
+import "../../lib"
 Item {
     id: root
     focus: true

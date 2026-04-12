@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Effects
-import "../"
-
+import "../../"
 Item {
     id: root
 

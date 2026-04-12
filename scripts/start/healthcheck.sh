@@ -3,11 +3,11 @@ set -euo pipefail
 
 QS_ROOT="${HOME}/.config/quickshell"
 
-if [[ ! -f "${QS_ROOT}/notifications/NotificationPopup.qml" ]]; then
+if [[ ! -f "${QS_ROOT}/widgets/notifications/NotificationPopup.qml" ]]; then
     exit 1
 fi
 
-if [[ ! -f "${QS_ROOT}/i18n/I18n.qml" ]]; then
+if [[ ! -f "${QS_ROOT}/lib/I18n.qml" ]]; then
     exit 1
 fi
 

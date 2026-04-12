@@ -4,7 +4,7 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Notifications
-import "notifications"
+import "widgets/notifications" as WidgetsNotifications
 import "WindowRegistry.js" as Registry
 
 FloatingWindow {
@@ -77,7 +77,7 @@ FloatingWindow {
 
     property var trackedNotifications: notificationServer.trackedNotifications
 
-    NotificationPopup {
+    WidgetsNotifications.NotificationPopup {
         id: notificationPopup
         notifications: masterWindow.trackedNotifications
         barVisible: true

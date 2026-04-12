@@ -8,7 +8,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Pam
 import "../"
-import "i18n"
+import "lib"
 
 ShellRoot {
     id: root

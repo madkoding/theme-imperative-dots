@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.SystemTray
-import "./i18n"
+import "./lib"
 
 PanelWindow {
     id: barWindow

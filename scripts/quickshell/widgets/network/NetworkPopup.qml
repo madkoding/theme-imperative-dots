@@ -4,9 +4,8 @@ import QtQuick.Effects
 import QtCore
 import Quickshell
 import Quickshell.Io
-import "../"
-import "../i18n"
-
+import "../../"
+import "../../lib"
 Item {
     id: window
     

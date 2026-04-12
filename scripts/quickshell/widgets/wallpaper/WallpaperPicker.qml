@@ -4,9 +4,8 @@ import QtCore
 import Qt.labs.folderlistmodel
 import Quickshell
 import Quickshell.Io
-import "../" 
-import "../i18n"
-
+import "../../"
+import "../../lib"
 Item {
     id: window
 
