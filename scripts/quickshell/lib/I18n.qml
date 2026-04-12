@@ -231,9 +231,6 @@ QtObject {
         "Toggle Notifications": {
             "es": "Toggle Notifications", "en": "Toggle Notifications", "fr": "Toggle Notifications", "de": "Toggle Notifications", "it": "Toggle Notifications", "pt": "Toggle Notifications", "ru": "Toggle Notifications", "ja": "Toggle Notifications", "zh": "Toggle Notifications"
         },
-        "Toggle Stewart AI": {
-            "es": "Toggle KosMos AI", "en": "Toggle KosMos AI", "fr": "Toggle KosMos AI", "de": "Toggle KosMos AI", "it": "Toggle KosMos AI", "pt": "Toggle KosMos AI", "ru": "Toggle KosMos AI", "ja": "Toggle KosMos AI", "zh": "Toggle KosMos AI"
-        },
         "Toggle KosMos AI": {
             "es": "Toggle KosMos AI", "en": "Toggle KosMos AI", "fr": "Toggle KosMos AI", "de": "Toggle KosMos AI", "it": "Toggle KosMos AI", "pt": "Toggle KosMos AI", "ru": "Toggle KosMos AI", "ja": "Toggle KosMos AI", "zh": "Toggle KosMos AI"
         },
@@ -287,9 +284,6 @@ QtObject {
         },
         "Quick display management.": {
             "es": "Gestion rapida de pantallas.", "en": "Quick display management.", "fr": "Quick display management.", "de": "Quick display management.", "it": "Quick display management.", "pt": "Quick display management.", "ru": "Quick display management.", "ja": "Quick display management.", "zh": "Quick display management."
-        },
-        "Stewart AI": {
-            "es": "KosMos AI", "en": "KosMos AI", "fr": "KosMos AI", "de": "KosMos AI", "it": "KosMos AI", "pt": "KosMos AI", "ru": "KosMos AI", "ja": "KosMos AI", "zh": "KosMos AI"
         },
         "KosMos AI": {
             "es": "KosMos AI", "en": "KosMos AI", "fr": "KosMos AI", "de": "KosMos AI", "it": "KosMos AI", "pt": "KosMos AI", "ru": "KosMos AI", "ja": "KosMos AI", "zh": "KosMos AI"
