@@ -104,11 +104,6 @@ PanelWindow {
     
     ListModel { id: workspacesModel }
     property int workspaceSlots: 6
-    property string lastActiveWorkspaceId: ""
-
-    function closeTopbarPopupsOnWorkspaceChange() {
-        Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh close all keepfocus"]);
-    }
 
     function ensureWorkspaceDefaults() {
         if (workspacesModel.count === workspaceSlots) {
@@ -147,7 +142,7 @@ PanelWindow {
     // 1. The continuous background daemon
     Process {
         id: wsDaemon
-        command: ["bash", "-c", "~/.config/quickshell/scripts/workspaces.sh"]
+        command: ["bash", "-c", "~/.config/quickshell/workspaces.sh"]
         running: true
     }
 
@@ -164,21 +159,6 @@ PanelWindow {
                         if (!Array.isArray(newData) || newData.length === 0) {
                             ensureWorkspaceDefaults();
                             return;
-                        }
-
-                        let detectedActiveWs = "";
-                        for (let i = 0; i < newData.length; i++) {
-                            if (newData[i].state === "active") {
-                                detectedActiveWs = newData[i].id.toString();
-                                break;
-                            }
-                        }
-
-                        if (detectedActiveWs !== "") {
-                            if (barWindow.lastActiveWorkspaceId !== "" && barWindow.lastActiveWorkspaceId !== detectedActiveWs) {
-                                barWindow.closeTopbarPopupsOnWorkspaceChange();
-                            }
-                            barWindow.lastActiveWorkspaceId = detectedActiveWs;
                         }
 
                         if (workspacesModel.count !== newData.length) {
@@ -256,7 +236,7 @@ PanelWindow {
     Process {
         id: sysPoller
         running: true
-        command: ["bash", "-c", "~/.config/quickshell/scripts/sys_info.sh"]
+        command: ["bash", "-c", "~/.config/quickshell/sys_info.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();
@@ -298,7 +278,7 @@ PanelWindow {
     }
     Process {
         id: sysWaiter
-        command: ["bash", "-c", "~/.config/quickshell/scripts/sys_waiter.sh"]
+        command: ["bash", "-c", "~/.config/quickshell/sys_waiter.sh"]
         onExited: sysPoller.running = true
     }
 
@@ -605,7 +585,6 @@ PanelWindow {
                                 hoverEnabled: true
                                 anchors.fill: parent
                                 onClicked: {
-                                    barWindow.closeTopbarPopupsOnWorkspaceChange();
                                     Quickshell.execDetached(["bash", "-c", "hyprctl dispatch workspace " + wsName]);
                                 }
                             }

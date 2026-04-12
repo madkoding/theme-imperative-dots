@@ -41,6 +41,33 @@ require_cmd_soft() {
     fi
 }
 
+migrate_legacy_quickshell_runtime() {
+    local hypr_conf="${XDG_CONF_HOME}/hypr/hyprland.conf"
+    local legacy_quickshell_dir="${XDG_CONF_HOME}/hypr/scripts/quickshell"
+    local before_sum=""
+    local after_sum=""
+
+    if [[ -f "${hypr_conf}" ]]; then
+        before_sum="$(sha256sum "${hypr_conf}" | awk '{print $1}')"
+
+        sed -i \
+            -e 's|quickshell -p ~/.config/hypr/scripts/quickshell/Main.qml|quickshell -p ~/.config/quickshell/Main.qml|g' \
+            -e 's|quickshell -p ~/.config/hypr/scripts/quickshell/TopBar.qml|quickshell -p ~/.config/quickshell/TopBar.qml|g' \
+            -e 's|python3 ~/.config/hypr/scripts/quickshell/focustime/focus_daemon.py &|python3 ~/.config/quickshell/widgets/focustime/focus_daemon.py \&|g' \
+            "${hypr_conf}"
+
+        after_sum="$(sha256sum "${hypr_conf}" | awk '{print $1}')"
+        if [[ "${before_sum}" != "${after_sum}" ]]; then
+            log_info "Migrated legacy quickshell paths in ${hypr_conf}"
+        fi
+    fi
+
+    if [[ -d "${legacy_quickshell_dir}" ]]; then
+        rm -rf "${legacy_quickshell_dir}"
+        log_info "Removed legacy quickshell runtime at ${legacy_quickshell_dir}"
+    fi
+}
+
 ensure_hyprland_session() {
     if [[ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
         log_warn "Not running under Hyprland session"
@@ -275,6 +302,7 @@ main() {
     require_cmd_soft nmcli
     ensure_hyprland_session
     prepare_user_runtime
+    migrate_legacy_quickshell_runtime
     seed_runtime_state
     ensure_wallpaper_dir
     start_launcher_cache_daemon
