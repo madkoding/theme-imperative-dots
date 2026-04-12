@@ -36,15 +36,20 @@ SEQ_END=6
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
 QS_STATE_DIR="${RUNTIME_DIR}/mados-quickshell"
 ACTIVE_WIDGET_FILE="${QS_ACTIVE_WIDGET_FILE:-${QS_STATE_DIR}/qs_active_widget}"
+LEGACY_ACTIVE_WIDGET_FILE="/tmp/qs_active_widget"
 
 get_active_workspace_id() {
     timeout 2 hyprctl activeworkspace -j 2>/dev/null | jq -r '.id // empty'
 }
 
-get_active_widget() {
-    if [ -f "$ACTIVE_WIDGET_FILE" ]; then
-        tr -d '\r\n' < "$ACTIVE_WIDGET_FILE"
-    fi
+is_master_window_open() {
+    timeout 2 hyprctl clients -j 2>/dev/null | jq -e '
+        any(.[];
+            (.title // "") == "qs-master" and
+            ((.size[0] // 1) > 1) and
+            ((.size[1] // 1) > 1)
+        )
+    ' >/dev/null 2>&1
 }
 
 print_workspaces() {
@@ -108,8 +113,7 @@ while true; do
                 new_active_ws="$(get_active_workspace_id)"
                 if [ -n "$new_active_ws" ]; then
                     if [ -n "$last_active_ws" ] && [ "$new_active_ws" != "$last_active_ws" ]; then
-                        active_widget="$(get_active_widget)"
-                        if [ -n "$active_widget" ] && [ "$active_widget" != "hidden" ]; then
+                        if is_master_window_open; then
                             ~/.config/hypr/scripts/qs_manager.sh close all keepfocus >/dev/null 2>&1 &
                         fi
                     fi

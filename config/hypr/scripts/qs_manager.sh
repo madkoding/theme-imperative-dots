@@ -70,6 +70,7 @@ mkdir -p "$QS_STATE_DIR"
 
 IPC_FILE="${QS_IPC_FILE:-${QS_STATE_DIR}/qs_widget_state}"
 ACTIVE_WIDGET_FILE="${QS_ACTIVE_WIDGET_FILE:-${QS_STATE_DIR}/qs_active_widget}"
+LEGACY_ACTIVE_WIDGET_FILE="/tmp/qs_active_widget"
 NETWORK_MODE_FILE="${QS_STATE_DIR}/qs_network_mode"
 PREV_FOCUS_FILE="${QS_STATE_DIR}/qs_prev_focus"
 SWITCHER_ACTIVE_FILE="${QS_STATE_DIR}/qs_switcher_active"
@@ -283,12 +284,36 @@ restore_focus() {
     fi
 }
 
+read_active_widget() {
+    local widget=""
+
+    if [[ -f "$ACTIVE_WIDGET_FILE" ]]; then
+        widget="$(tr -d '\r\n' < "$ACTIVE_WIDGET_FILE" 2>/dev/null)"
+    fi
+
+    if [[ -z "$widget" && "$ACTIVE_WIDGET_FILE" != "$LEGACY_ACTIVE_WIDGET_FILE" && -f "$LEGACY_ACTIVE_WIDGET_FILE" ]]; then
+        widget="$(tr -d '\r\n' < "$LEGACY_ACTIVE_WIDGET_FILE" 2>/dev/null)"
+    fi
+
+    printf '%s' "$widget"
+}
+
+is_master_window_open() {
+    timeout 2 hyprctl clients -j 2>/dev/null | jq -e '
+        any(.[];
+            (.title // "") == "qs-master" and
+            ((.size[0] // 1) > 1) and
+            ((.size[1] // 1) > 1)
+        )
+    ' >/dev/null 2>&1
+}
+
 # -----------------------------------------------------------------------------
 # REMAINING ACTIONS (OPEN / CLOSE / TOGGLE)
 # -----------------------------------------------------------------------------
 if [[ "$ACTION" == "close" ]]; then
-    ACTIVE_WIDGET="$(tr -d '\r\n' < "$ACTIVE_WIDGET_FILE" 2>/dev/null)"
-    if [[ "$ACTIVE_WIDGET" != "hidden" ]]; then
+    ACTIVE_WIDGET="$(read_active_widget)"
+    if [[ -n "$ACTIVE_WIDGET" && "$ACTIVE_WIDGET" != "hidden" ]] || is_master_window_open; then
         echo "close" > "$IPC_FILE"
     fi
     if [[ "$SUBTARGET" != "keepfocus" ]]; then
@@ -305,7 +330,7 @@ if [[ "$ACTION" == "close" ]]; then
 fi
 
 if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
-    ACTIVE_WIDGET=$(cat "$ACTIVE_WIDGET_FILE" 2>/dev/null)
+    ACTIVE_WIDGET="$(read_active_widget)"
     CURRENT_MODE=$(cat "$NETWORK_MODE_FILE" 2>/dev/null)
 
     # Dynamically fetch focused monitor geometry and adjust for Wayland layout scale
