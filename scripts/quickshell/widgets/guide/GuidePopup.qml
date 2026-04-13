@@ -77,6 +77,18 @@ Item {
     property real introContent: 0.0
 
     ListModel { id: dynamicKeybindsModel }
+
+    function openWallpaperPicker(webMode) {
+        const home = Quickshell.env("HOME");
+        const localPicker = home + "/.local/bin/mados-wallpaper-picker";
+        const qsManager = home + "/.config/hypr/scripts/qs_manager.sh";
+        const action = webMode ? "web" : "open";
+        const cmd = "if [ -x " + JSON.stringify(localPicker) + " ]; then "
+            + JSON.stringify(localPicker) + " " + action + "; "
+            + "elif command -v mados-wallpaper-picker >/dev/null 2>&1; then mados-wallpaper-picker " + action + "; "
+            + "else " + JSON.stringify(qsManager) + " open wallpaper; fi";
+        Quickshell.execDetached(["bash", "-lc", cmd]);
+    }
                 
     function buildKeybinds() {
         dynamicKeybindsModel.clear();
@@ -95,8 +107,8 @@ Item {
             { k1: "SHIFT", k2: "PRINT", action: I18n.s("Screenshot (Edit)"), cmd: "bash ~/.config/hypr/scripts/screenshot.sh --edit" },
             { k1: "ALT+SHIFT", k2: "", action: I18n.s("Switch Keyboard Layout"), cmd: "hyprctl switchxkblayout main next" },
             
-            { k1: "SUPER", k2: "W", action: I18n.s("Toggle Wallpaper Picker"), cmd: "skwd-wall" },
-            { k1: "SUPER+CTRL", k2: "W", action: I18n.s("Search Wallpapers on Web"), cmd: "skwd-wall" },
+            { k1: "SUPER", k2: "W", action: I18n.s("Toggle Wallpaper Picker"), cmd: "if [ -x \"$HOME/.local/bin/mados-wallpaper-picker\" ]; then \"$HOME/.local/bin/mados-wallpaper-picker\" open; elif command -v mados-wallpaper-picker >/dev/null 2>&1; then mados-wallpaper-picker open; else \"$HOME/.config/hypr/scripts/qs_manager.sh\" open wallpaper; fi" },
+            { k1: "SUPER+CTRL", k2: "W", action: I18n.s("Search Wallpapers on Web"), cmd: "if [ -x \"$HOME/.local/bin/mados-wallpaper-picker\" ]; then \"$HOME/.local/bin/mados-wallpaper-picker\" web; elif command -v mados-wallpaper-picker >/dev/null 2>&1; then mados-wallpaper-picker web; else \"$HOME/.config/hypr/scripts/qs_manager.sh\" open wallpaper; fi" },
             { k1: "SUPER", k2: "R", action: I18n.s("Toggle Music Widget"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle music" },
             { k1: "SUPER", k2: "B", action: I18n.s("Toggle Battery Widget"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle battery" },
             { k1: "SUPER", k2: "S", action: I18n.s("Toggle Calendar Widget"), cmd: "bash ~/.config/hypr/scripts/qs_manager.sh toggle calendar" },
@@ -659,7 +671,7 @@ Item {
                                         id: modMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor 
                                         onClicked: {
                                             if (model.target === "wallpaper")
-                                                Quickshell.execDetached(["bash", "-lc", "skwd-wall"]);
+                                                openWallpaperPicker(false);
                                             else
                                                 Quickshell.execDetached(["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/qs_manager.sh", "toggle", model.target]);
                                         }

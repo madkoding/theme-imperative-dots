@@ -5,6 +5,14 @@ LOG_TAG="imperative-dots"
 XDG_CONF_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 THEME_ROOT="/usr/share/mados/themes/imperative-dots"
 
+if [[ ! -d "${THEME_ROOT}" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    LOCAL_THEME_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+    if [[ -d "${LOCAL_THEME_ROOT}/config" && -d "${LOCAL_THEME_ROOT}/scripts" ]]; then
+        THEME_ROOT="${LOCAL_THEME_ROOT}"
+    fi
+fi
+
 THEME_HYPR_SCRIPTS="${THEME_ROOT}/config/hypr/scripts"
 TARGET_HYPR_SCRIPTS="${XDG_CONF_HOME}/hypr/scripts"
 THEME_QUICKSHELL="${THEME_ROOT}/scripts/quickshell"

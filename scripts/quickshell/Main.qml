@@ -157,6 +157,19 @@ FloatingWindow {
         masterWindow.isWallpaperTransition = involvesWallpaper;
 
         if (newWidget === "hidden") {
+            if (!masterWindow.isVisible) {
+                masterWindow.currentActive = "hidden";
+                masterWindow.activeArg = "";
+                masterWindow.animW = 1;
+                masterWindow.animH = 1;
+                masterWindow.width = 1;
+                masterWindow.height = 1;
+                widgetStack.clear();
+                masterWindow.disableMorph = false;
+                parkHiddenWindow();
+                return;
+            }
+
             if (currentActive !== "hidden" && getLayout(currentActive)) {
                 masterWindow.morphDuration = 250; // FAST CLOSE
                 masterWindow.disableMorph = false;
@@ -204,6 +217,26 @@ FloatingWindow {
                 }
             }
         }
+    }
+
+    function forceHideImmediate() {
+        delayedClear.stop();
+        prepTimer.stop();
+        teleportFadeOutTimer.stop();
+        teleportFadeInTimer.stop();
+        resetMorphTimer.stop();
+
+        masterWindow.isWallpaperTransition = false;
+        masterWindow.disableMorph = false;
+        masterWindow.isVisible = false;
+        masterWindow.currentActive = "hidden";
+        masterWindow.activeArg = "";
+        masterWindow.animW = 1;
+        masterWindow.animH = 1;
+        masterWindow.width = 1;
+        masterWindow.height = 1;
+        widgetStack.clear();
+        parkHiddenWindow();
     }
 
     Timer {
@@ -296,7 +329,7 @@ FloatingWindow {
                 if (masterWindow.lastWorkspaceId !== "" && masterWindow.lastWorkspaceId !== wsId) {
                     masterWindow.suppressOpenUntilMs = Date.now() + 500;
                     if (masterWindow.currentActive !== "hidden" || masterWindow.isVisible) {
-                        switchWidget("hidden", "");
+                        forceHideImmediate();
                     }
                 }
 
@@ -350,7 +383,11 @@ FloatingWindow {
 
                 if (cmd === "close") {
                     notificationPopup.centerOpen = false;
-                    switchWidget("hidden", "");
+                    if (arg === "instant") {
+                        forceHideImmediate();
+                    } else {
+                        switchWidget("hidden", "");
+                    }
                 } else if (cmd === "notifications") {
                     if (arg === "dismiss" || arg === "clear") {
                         notificationPopup.dismissAll();

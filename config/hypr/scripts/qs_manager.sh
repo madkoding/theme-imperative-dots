@@ -9,13 +9,41 @@ BT_SCAN_LOG="$HOME/.cache/bt_scan.log"
 SRC_DIR="$HOME/Images/Wallpapers"
 THUMB_DIR="$HOME/.cache/wallpaper_picker/thumbs"
 
-IPC_FILE="/tmp/qs_widget_state"
+QS_STATE_DIR="${XDG_RUNTIME_DIR:-/tmp}/mados-quickshell"
+LEGACY_IPC_FILE="/tmp/qs_widget_state"
+LEGACY_ACTIVE_WIDGET_FILE="/tmp/qs_active_widget"
+
+if [[ -n "${QS_IPC_FILE:-}" ]]; then
+    IPC_FILE="${QS_IPC_FILE}"
+elif [[ -e "${QS_STATE_DIR}/qs_widget_state" || -e "${QS_STATE_DIR}/qs_active_widget" ]]; then
+    IPC_FILE="${QS_STATE_DIR}/qs_widget_state"
+else
+    IPC_FILE="${LEGACY_IPC_FILE}"
+fi
+
 NETWORK_MODE_FILE="/tmp/qs_network_mode"
 PREV_FOCUS_FILE="/tmp/qs_prev_focus"
+
+if [[ -n "${QS_ACTIVE_WIDGET_FILE:-}" ]]; then
+    ACTIVE_WIDGET_FILE="${QS_ACTIVE_WIDGET_FILE}"
+elif [[ -e "${QS_STATE_DIR}/qs_active_widget" || -e "${QS_STATE_DIR}/qs_widget_state" ]]; then
+    ACTIVE_WIDGET_FILE="${QS_STATE_DIR}/qs_active_widget"
+else
+    ACTIVE_WIDGET_FILE="${LEGACY_ACTIVE_WIDGET_FILE}"
+fi
+
+emit_ipc() {
+    local payload="$1"
+    printf '%s\n' "$payload" > "$IPC_FILE"
+    if [[ "$IPC_FILE" != "$LEGACY_IPC_FILE" ]]; then
+        printf '%s\n' "$payload" > "$LEGACY_IPC_FILE"
+    fi
+}
 
 ACTION="$1"
 TARGET="$2"
 SUBTARGET="$3"
+MODE="$4"
 
 # -----------------------------------------------------------------------------
 # FAST PATH: WORKSPACE SWITCHING
@@ -112,35 +140,40 @@ handle_network_prep() {
 # -----------------------------------------------------------------------------
 # ENSURE MASTER WINDOW & TOP BAR ARE ALIVE (ZOMBIE WATCHDOG)
 # -----------------------------------------------------------------------------
-MAIN_QML_PATH="$HOME/.config/hypr/scripts/quickshell/Main.qml"
-BAR_QML_PATH="$HOME/.config/hypr/scripts/quickshell/TopBar.qml"
+ensure_shellbar_running() {
+    local main_qml_path="$HOME/.config/quickshell/Main.qml"
+    local bar_qml_path="$HOME/.config/quickshell/TopBar.qml"
 
-QS_PID=$(pgrep -f "quickshell.*Main\.qml")
-WIN_EXISTS=$(hyprctl clients -j | grep "qs-master")
-BAR_PID=$(pgrep -f "quickshell.*TopBar\.qml")
+    local qs_pid
+    local win_exists
+    local bar_pid
 
-if [[ -z "$QS_PID" ]] || [[ -z "$WIN_EXISTS" ]]; then
-    if [[ -n "$QS_PID" ]]; then
-        kill -9 $QS_PID 2>/dev/null
-    fi
-    
-    # Bypass NixOS symlink resolution by using the direct ~/.config path
-    quickshell -p "$MAIN_QML_PATH" >/dev/null 2>&1 &
-    disown
-    
-    for _ in {1..20}; do
-        if hyprctl clients -j | grep -q "qs-master"; then
-            sleep 0.1
-            break
+    qs_pid=$(pgrep -f "quickshell.*Main\.qml")
+    win_exists=$(hyprctl clients -j | grep "qs-master")
+    bar_pid=$(pgrep -f "quickshell.*TopBar\.qml")
+
+    if [[ -z "$qs_pid" ]] || [[ -z "$win_exists" ]]; then
+        if [[ -n "$qs_pid" ]]; then
+            kill -9 "$qs_pid" 2>/dev/null
         fi
-        sleep 0.05
-    done
-fi
 
-if [[ -z "$BAR_PID" ]]; then
-    quickshell -p "$BAR_QML_PATH" >/dev/null 2>&1 &
-    disown
-fi
+        quickshell -p "$main_qml_path" >/dev/null 2>&1 &
+        disown
+
+        for _ in {1..20}; do
+            if hyprctl clients -j | grep -q "qs-master"; then
+                sleep 0.1
+                break
+            fi
+            sleep 0.05
+        done
+    fi
+
+    if [[ -z "$bar_pid" ]]; then
+        quickshell -p "$bar_qml_path" >/dev/null 2>&1 &
+        disown
+    fi
+}
 
 # -----------------------------------------------------------------------------
 # FOCUS MANAGEMENT
@@ -177,7 +210,11 @@ restore_focus() {
 # REMAINING ACTIONS (OPEN / CLOSE / TOGGLE)
 # -----------------------------------------------------------------------------
 if [[ "$ACTION" == "close" ]]; then
-    echo "close" > "$IPC_FILE"
+    if [[ "$MODE" == "instant" ]]; then
+        emit_ipc "close:instant"
+    else
+        emit_ipc "close"
+    fi
     restore_focus
     if [[ "$TARGET" == "network" || "$TARGET" == "all" || -z "$TARGET" ]]; then
         if [ -f "$BT_PID_FILE" ]; then
@@ -190,7 +227,8 @@ if [[ "$ACTION" == "close" ]]; then
 fi
 
 if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
-    ACTIVE_WIDGET=$(cat /tmp/qs_active_widget 2>/dev/null)
+    ensure_shellbar_running
+    ACTIVE_WIDGET=$(cat "$ACTIVE_WIDGET_FILE" 2>/dev/null)
     CURRENT_MODE=$(cat "$NETWORK_MODE_FILE" 2>/dev/null)
 
     # Dynamically fetch focused monitor geometry and adjust for Wayland layout scale
@@ -206,14 +244,14 @@ if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
         if [[ "$ACTION" == "toggle" && "$ACTIVE_WIDGET" == "network" ]]; then
             if [[ -n "$SUBTARGET" ]]; then
                 if [[ "$CURRENT_MODE" == "$SUBTARGET" ]]; then
-                    echo "close" > "$IPC_FILE"
+                    emit_ipc "close"
                     restore_focus
                 else
                     echo "$SUBTARGET" > "$NETWORK_MODE_FILE"
                     save_and_focus_widget
                 fi
             else
-                echo "close" > "$IPC_FILE"
+                emit_ipc "close"
                 restore_focus
             fi
         else
@@ -221,7 +259,7 @@ if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
             if [[ -n "$SUBTARGET" ]]; then
                 echo "$SUBTARGET" > "$NETWORK_MODE_FILE"
             fi
-            echo "$TARGET::$MON_DATA" > "$IPC_FILE"
+            emit_ipc "$TARGET::$MON_DATA"
             save_and_focus_widget
         fi
         exit 0
@@ -229,16 +267,16 @@ if [[ "$ACTION" == "open" || "$ACTION" == "toggle" ]]; then
 
     # Intercept toggle logic for all other widgets so we can restore focus properly
     if [[ "$ACTION" == "toggle" && "$ACTIVE_WIDGET" == "$TARGET" ]]; then
-        echo "close" > "$IPC_FILE"
+        emit_ipc "close"
         restore_focus
         exit 0
     fi
 
     if [[ "$TARGET" == "wallpaper" ]]; then
         handle_wallpaper_prep
-        echo "$TARGET:$WALLPAPER_THUMB:$MON_DATA" > "$IPC_FILE"
+        emit_ipc "$TARGET:$WALLPAPER_THUMB:$MON_DATA"
     else
-        echo "$TARGET::$MON_DATA" > "$IPC_FILE"
+        emit_ipc "$TARGET::$MON_DATA"
     fi
     
     save_and_focus_widget

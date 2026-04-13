@@ -114,7 +114,7 @@ while true; do
                 if [ -n "$new_active_ws" ]; then
                     if [ -n "$last_active_ws" ] && [ "$new_active_ws" != "$last_active_ws" ]; then
                         if is_master_window_open; then
-                            ~/.config/hypr/scripts/qs_manager.sh close all keepfocus >/dev/null 2>&1 &
+                            ~/.config/hypr/scripts/qs_manager.sh close all keepfocus instant >/dev/null 2>&1 &
                         fi
                     fi
                     last_active_ws="$new_active_ws"
