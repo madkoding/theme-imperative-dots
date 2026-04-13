@@ -28,7 +28,8 @@ Item {
     readonly property color stateOnGreen: "#45d483"
     readonly property color stateWarnYellow: "#f4bf4f"
     readonly property color stateOffRed: "#f05f6b"
-    readonly property int compactInputHeight: 30
+    readonly property int compactInputHeight: 42
+    readonly property real uiTextScale: 1.38
 
     readonly property string helperScript: Quickshell.env("HOME") + "/.config/quickshell/widgets/ia/ia_services.sh"
 
@@ -73,8 +74,33 @@ Item {
     property bool opencodeForeign: false
     property bool ollamaForeign: false
     property bool openclawForeign: false
+    property string selectedService: ""
+    property bool servicePopupOpen: false
 
     property bool _suspendSwitchHandlers: false
+    property real globalOrbitAngle: 0
+
+    readonly property int runningServicesCount: (opencodeState === "running" ? 1 : 0)
+                                             + (ollamaState === "running" ? 1 : 0)
+                                             + (openclawState === "running" ? 1 : 0)
+    readonly property color aiAccent: runningServicesCount > 0 ? root.mauve : root.surface2
+    readonly property color aiGradientSecondary: Qt.darker(aiAccent, 1.25)
+    readonly property color radarDanger: root.stateWarnYellow
+
+    component DarkFieldBg: Rectangle {
+        radius: 10
+        color: Qt.rgba(root.crust.r, root.crust.g, root.crust.b, 0.88)
+        border.width: 1
+        border.color: root.surface1
+    }
+
+    NumberAnimation on globalOrbitAngle {
+        from: 0
+        to: Math.PI * 2
+        duration: 200000
+        loops: Animation.Infinite
+        running: true
+    }
 
     function sanitizePort(value, fallbackPort) {
         let p = parseInt(value);
@@ -129,12 +155,52 @@ Item {
         return root.peach;
     }
 
+    function serviceState(service) {
+        if (service === "opencode") return root.opencodeState;
+        if (service === "ollama") return root.ollamaState;
+        return root.openclawState;
+    }
+
+    function serviceAvailable(service) {
+        if (service === "opencode") return root.opencodeAvailable;
+        if (service === "ollama") return root.ollamaAvailable;
+        return root.openclawAvailable;
+    }
+
+    function serviceMessage(service) {
+        if (service === "opencode") return root.opencodeMessage;
+        if (service === "ollama") return root.ollamaMessage;
+        return root.openclawMessage;
+    }
+
+    function serviceTitle(service) {
+        if (service === "opencode") return "OpenCode";
+        if (service === "ollama") return "Ollama";
+        return "OpenClaw";
+    }
+
+    function serviceIcon(service) {
+        if (service === "opencode") return "󰍹";
+        if (service === "ollama") return "󰳆";
+        return "🦞";
+    }
+
+    function openServicePopup(service) {
+        selectedService = service;
+        servicePopupOpen = true;
+    }
+
+    function closeServicePopup() {
+        servicePopupOpen = false;
+        selectedService = "";
+    }
+
     function cardBackground(state, service) {
         let c = serviceAccent(service);
-        if (state === "running") return Qt.rgba(c.r, c.g, c.b, 0.14);
+        if (state === "running") return Qt.rgba(c.r, c.g, c.b, 0.11);
         if (state === "starting") return Qt.rgba(root.yellow.r, root.yellow.g, root.yellow.b, 0.10);
         if (state === "failed") return Qt.rgba(root.red.r, root.red.g, root.red.b, 0.10);
-        return Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.52);
+        return Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.58);
     }
 
     function cardBorder(state, service) {
@@ -466,10 +532,10 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        radius: 18
-        color: Qt.rgba(root.base.r, root.base.g, root.base.b, 0.92)
+        radius: 20
+        color: root.base
         border.width: 1
-        border.color: root.surface1
+        border.color: root.surface0
 
         Rectangle {
             anchors.fill: parent
@@ -482,21 +548,64 @@ Item {
         }
 
         Rectangle {
-            width: 220
-            height: 220
-            radius: 110
-            x: -80
-            y: -120
-            color: Qt.rgba(root.sapphire.r, root.sapphire.g, root.sapphire.b, 0.10)
+            width: parent.width * 0.85
+            height: width
+            radius: width / 2
+            x: (parent.width / 2 - width / 2) + Math.cos(root.globalOrbitAngle * 2) * 140
+            y: (parent.height / 2 - height / 2) + Math.sin(root.globalOrbitAngle * 2) * 90
+            opacity: 0.08
+            color: root.aiAccent
+            Behavior on color { ColorAnimation { duration: 900 } }
         }
 
         Rectangle {
-            width: 200
-            height: 200
-            radius: 100
-            x: parent.width - 120
-            y: -90
-            color: Qt.rgba(root.mauve.r, root.mauve.g, root.mauve.b, 0.08)
+            width: parent.width * 0.95
+            height: width
+            radius: width / 2
+            x: (parent.width / 2 - width / 2) + Math.sin(root.globalOrbitAngle * 1.5) * -130
+            y: (parent.height / 2 - height / 2) + Math.cos(root.globalOrbitAngle * 1.5) * -80
+            opacity: 0.06
+            color: root.aiGradientSecondary
+            Behavior on color { ColorAnimation { duration: 900 } }
+        }
+
+        Item {
+            id: radarBackdrop
+            anchors.fill: parent
+            anchors.bottomMargin: 60
+
+            Repeater {
+                model: 3
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 260 + (index * 150)
+                    height: width
+                    radius: width / 2
+                    color: "transparent"
+                    border.width: 1
+                    border.color: Qt.rgba(root.aiAccent.r, root.aiAccent.g, root.aiAccent.b, 0.35)
+                    opacity: 0.07 - (index * 0.015)
+                    Behavior on border.color { ColorAnimation { duration: 800 } }
+                }
+            }
+
+            Rectangle {
+                id: centerCoreGlow
+                anchors.centerIn: parent
+                width: 220
+                height: 220
+                radius: 110
+                color: root.aiAccent
+                opacity: 0.08
+                scale: 1.0
+                Behavior on color { ColorAnimation { duration: 800 } }
+
+                SequentialAnimation on scale {
+                    loops: Animation.Infinite
+                    NumberAnimation { to: 1.08; duration: 1800; easing.type: Easing.InOutSine }
+                    NumberAnimation { to: 1.0; duration: 1800; easing.type: Easing.InOutSine }
+                }
+            }
         }
 
         ColumnLayout {
@@ -511,7 +620,7 @@ Item {
                 Text {
                     text: "󰚩"
                     font.family: "Iosevka Nerd Font"
-                    font.pixelSize: 22
+                    font.pixelSize: Math.round(22 * root.uiTextScale)
                     color: root.mauve
                 }
 
@@ -520,7 +629,7 @@ Item {
                     Text {
                         text: "IA Services"
                         font.family: "Michroma"
-                        font.pixelSize: 16
+                        font.pixelSize: Math.round(16 * root.uiTextScale)
                         font.weight: Font.Black
                         color: root.text
                     }
@@ -529,7 +638,7 @@ Item {
                               ? ("VRAM: " + root.vramGiB.toFixed(1) + " GiB (" + root.vramSource + ")")
                               : "VRAM: N/A"
                         font.family: "Michroma"
-                        font.pixelSize: 10
+                        font.pixelSize: Math.round(10 * root.uiTextScale)
                         color: root.subtext0
                     }
                 }
@@ -547,7 +656,7 @@ Item {
                         anchors.centerIn: parent
                         text: root.serviceHealthSummary()
                         font.family: "Michroma"
-                        font.pixelSize: 9
+                        font.pixelSize: Math.round(9 * root.uiTextScale)
                         font.weight: Font.Bold
                         color: root.subtext0
                     }
@@ -564,7 +673,7 @@ Item {
                         anchors.centerIn: parent
                         text: ""
                         font.family: "Iosevka Nerd Font"
-                        font.pixelSize: 16
+                        font.pixelSize: Math.round(16 * root.uiTextScale)
                         color: root.subtext0
                     }
                     MouseArea {
@@ -582,461 +691,657 @@ Item {
                 color: Qt.rgba(root.surface2.r, root.surface2.g, root.surface2.b, 0.5)
             }
 
-            RowLayout {
+            Item {
                 Layout.fillWidth: true
-                spacing: 8
+                Layout.preferredHeight: 190
 
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 34
-                    radius: 10
-                    color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.55)
-                    border.width: 1
-                    border.color: root.surface1
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 8
-                        spacing: 6
-                        Text { text: "󰆦"; font.family: "Iosevka Nerd Font"; font.pixelSize: 14; color: root.sapphire }
-                        Text { text: "Detected VRAM"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
-                        Item { Layout.fillWidth: true }
-                        Text { text: root.vramDetected ? (root.vramGiB.toFixed(1) + " GiB") : "N/A"; font.family: "Michroma"; font.pixelSize: 12; color: root.text }
+                Repeater {
+                    model: 3
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 150 + (index * 95)
+                        height: width
+                        radius: width / 2
+                        color: "transparent"
+                        border.width: 1
+                        border.color: Qt.rgba(root.aiAccent.r, root.aiAccent.g, root.aiAccent.b, 0.34)
+                        opacity: 0.14 - (index * 0.03)
                     }
                 }
 
                 Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 34
+                    id: aiCore
+                    anchors.centerIn: parent
+                    width: 122
+                    height: 122
+                    radius: 61
+                    gradient: Gradient {
+                        orientation: Gradient.Vertical
+                        GradientStop { position: 0.0; color: Qt.lighter(root.aiAccent, 1.2) }
+                        GradientStop { position: 1.0; color: root.aiAccent }
+                    }
+                    border.width: 2
+                    border.color: runningServicesCount > 0 ? Qt.lighter(root.aiAccent, 1.15) : root.surface2
+                    opacity: 0.95
+
+                    SequentialAnimation on scale {
+                        loops: Animation.Infinite
+                        NumberAnimation { to: 1.06; duration: 1600; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 1.0; duration: 1600; easing.type: Easing.InOutSine }
+                    }
+
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 4
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "󰚩"
+                            font.family: "Iosevka Nerd Font"
+                            font.pixelSize: Math.round(28 * root.uiTextScale)
+                            color: root.base
+                        }
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: root.serviceHealthSummary()
+                            font.family: "Michroma"
+                            font.pixelSize: Math.round(9 * root.uiTextScale)
+                            font.weight: Font.Bold
+                            color: root.base
+                        }
+                    }
+                }
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 12
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 170
+                    height: 36
                     radius: 10
-                    color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.55)
+                    color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.65)
                     border.width: 1
                     border.color: root.surface1
                     RowLayout {
                         anchors.fill: parent
                         anchors.margins: 8
                         spacing: 6
-                        Text { text: "󱐋"; font.family: "Iosevka Nerd Font"; font.pixelSize: 14; color: root.green }
-                        Text { text: "Profiles"; font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0 }
+                        Text { text: "󰆦"; font.family: "Iosevka Nerd Font"; font.pixelSize: Math.round(14 * root.uiTextScale); color: root.sapphire }
+                        Text { text: "VRAM"; font.family: "Michroma"; font.pixelSize: Math.round(10 * root.uiTextScale); color: root.subtext0 }
                         Item { Layout.fillWidth: true }
-                        Text { text: String(root.ollamaCandidates.length) + " models"; font.family: "Michroma"; font.pixelSize: 12; color: root.text }
+                        Text { text: root.vramDetected ? (root.vramGiB.toFixed(1) + " GiB") : "N/A"; font.family: "Michroma"; font.pixelSize: Math.round(11 * root.uiTextScale); color: root.text }
+                    }
+                }
+
+                Rectangle {
+                    anchors.right: parent.right
+                    anchors.rightMargin: 12
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 170
+                    height: 36
+                    radius: 10
+                    color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.65)
+                    border.width: 1
+                    border.color: root.surface1
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 6
+                        Text { text: "󱐋"; font.family: "Iosevka Nerd Font"; font.pixelSize: Math.round(14 * root.uiTextScale); color: root.green }
+                        Text { text: "Models"; font.family: "Michroma"; font.pixelSize: Math.round(10 * root.uiTextScale); color: root.subtext0 }
+                        Item { Layout.fillWidth: true }
+                        Text { text: String(root.ollamaCandidates.length); font.family: "Michroma"; font.pixelSize: Math.round(12 * root.uiTextScale); color: root.text }
                     }
                 }
             }
 
-            ScrollView {
+            Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
 
-                Item {
-                    id: scrollContent
-                    width: (parent && parent.width > 0) ? Math.max(0, parent.width - 8) : (root.width - 48)
-                    implicitHeight: cardsGrid.implicitHeight + 8
+                property var serviceNodes: [
+                    { service: "opencode", label: "OpenCode", icon: "󰍹", angle: -1.57 },
+                    { service: "ollama", label: "Ollama", icon: "󰳆", angle: 0.52 },
+                    { service: "openclaw", label: "OpenClaw", icon: "🦞", angle: 2.62 }
+                ]
 
-                    Grid {
-                        id: cardsGrid
-                        x: 4
-                        width: Math.max(0, parent.width - 8)
-                        columns: 2
-                        spacing: 14
+                Repeater {
+                    id: serviceNodesRepeater
+                    model: parent.serviceNodes
+                    delegate: Rectangle {
+                        property string svc: modelData.service
+                        property real orbitRadiusX: Math.max(130, parent.width * 0.30)
+                        property real orbitRadiusY: Math.max(82, parent.height * 0.26)
+                        property real orbitAngle: modelData.angle + root.globalOrbitAngle * 0.22
+                        width: 112
+                        height: 112
+                        radius: width / 2
+                        x: (parent.width / 2 - width / 2) + Math.cos(orbitAngle) * orbitRadiusX
+                        y: (parent.height / 2 - height / 2) + Math.sin(orbitAngle) * orbitRadiusY
+                        gradient: Gradient {
+                            orientation: Gradient.Vertical
+                            GradientStop { position: 0.0; color: Qt.rgba(root.surface1.r, root.surface1.g, root.surface1.b, 0.86) }
+                            GradientStop { position: 1.0; color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.9) }
+                        }
+                        border.width: 2
+                        border.color: root.stateColor(root.serviceState(svc), root.serviceAvailable(svc), root.serviceManaged(svc))
+                        scale: nodeHover.containsMouse ? 1.05 : 1.0
+                        Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                        Behavior on border.color { ColorAnimation { duration: 250 } }
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 2
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: modelData.icon
+                                font.family: "Iosevka Nerd Font"
+                                font.pixelSize: Math.round(24 * root.uiTextScale)
+                                color: root.stateColor(root.serviceState(svc), root.serviceAvailable(svc), root.serviceManaged(svc))
+                            }
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: modelData.label
+                                font.family: "Michroma"
+                                font.pixelSize: Math.round(8 * root.uiTextScale)
+                                color: root.text
+                            }
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: root.stateLabel(root.serviceState(svc), root.serviceAvailable(svc))
+                                font.family: "Michroma"
+                                font.pixelSize: Math.round(7 * root.uiTextScale)
+                                color: root.subtext0
+                            }
+                        }
+
+                        MouseArea {
+                            id: nodeHover
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.openServicePopup(svc)
+                        }
+                    }
+                }
+
+                Canvas {
+                    id: serviceLightningCanvas
+                    anchors.fill: parent
+                    anchors.topMargin: -220
+                    z: 2
+                    opacity: 0.9
+
+                    Timer {
+                        interval: 70
+                        running: true
+                        repeat: true
+                        onTriggered: serviceLightningCanvas.requestPaint()
+                    }
+
+                    onPaint: {
+                        var ctx = getContext("2d");
+                        ctx.clearRect(0, 0, width, height);
+
+                        if (!aiCore)
+                            return;
+
+                        var center = aiCore.mapToItem(serviceLightningCanvas, aiCore.width / 2, aiCore.height / 2);
+                        var time = Date.now() / 1000;
+
+                        for (var i = 0; i < serviceNodesRepeater.count; i++) {
+                            var node = serviceNodesRepeater.itemAt(i);
+                            if (!node)
+                                continue;
+
+                            if (root.serviceState(node.svc) !== "running")
+                                continue;
+
+                            var nodeCenter = node.mapToItem(serviceLightningCanvas, node.width / 2, node.height / 2);
+                            var dx = center.x - nodeCenter.x;
+                            var dy = center.y - nodeCenter.y;
+                            var dist = Math.sqrt(dx * dx + dy * dy);
+                            if (dist < 8)
+                                continue;
+
+                            var alpha = Math.atan2(dy, dx);
+                            var cosA = Math.cos(alpha);
+                            var sinA = Math.sin(alpha);
+                            var perpX = -sinA;
+                            var perpY = cosA;
+
+                            var nodeRadius = node.width / 2;
+                            var startX = nodeCenter.x + cosA * nodeRadius;
+                            var startY = nodeCenter.y + sinA * nodeRadius;
+                            // Route connectors to the lower side of the online core
+                            // so the lightning stays visually beneath the center circle.
+                            var targetX = center.x;
+                            var targetY = center.y + (aiCore.height * 0.58);
+
+                            var linkDx = targetX - startX;
+                            var linkDy = targetY - startY;
+                            var linkDist = Math.sqrt(linkDx * linkDx + linkDy * linkDy);
+                            if (linkDist <= 4)
+                                continue;
+
+                            var steps = 10;
+                            var c = root.stateColor("running", true, true);
+                            var waveA = time * 2.8 + i;
+                            var waveB = time * -1.8 + i * 0.7;
+
+                            function strokeStrand(widthCore, widthGlow, alphaCore, alphaGlow, ampMul, phase, colorCore, colorGlow) {
+                                ctx.beginPath();
+                                ctx.moveTo(startX, startY);
+                                for (var s = 1; s <= steps; s++) {
+                                    var t = s / steps;
+                                    var px = startX + linkDx * t;
+                                    var py = startY + linkDy * t;
+                                    var envelope = Math.sin(Math.PI * t);
+                                    var jitter = Math.sin(phase + t * 8.0) * (6.5 * ampMul) * envelope;
+                                    ctx.lineTo(px + perpX * jitter, py + perpY * jitter);
+                                }
+                                ctx.lineWidth = widthGlow;
+                                ctx.strokeStyle = colorGlow;
+                                ctx.globalAlpha = alphaGlow;
+                                ctx.stroke();
+
+                                ctx.lineWidth = widthCore;
+                                ctx.strokeStyle = colorCore;
+                                ctx.globalAlpha = alphaCore;
+                                ctx.stroke();
+                            }
+
+                            strokeStrand(1.3, 4.6, 0.82, 0.20, 1.0, waveA, "#ffffff", c);
+                            strokeStrand(1.0, 3.4, 0.58, 0.14, 0.8, waveB, c, c);
+
+                            ctx.beginPath();
+                            ctx.arc(targetX, targetY, 2.6, 0, Math.PI * 2);
+                            ctx.fillStyle = c;
+                            ctx.globalAlpha = 0.9;
+                            ctx.fill();
+                            ctx.globalAlpha = 1.0;
+                        }
+                    }
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: Qt.rgba(root.crust.r, root.crust.g, root.crust.b, 0.44)
+                    visible: root.servicePopupOpen
+                    z: 10
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.closeServicePopup()
+                    }
+                }
+
+                Rectangle {
+                    id: servicePopup
+                    visible: root.servicePopupOpen
+                    z: 11
+                    width: Math.min(parent.width - 30, 560)
+                    height: Math.min(parent.height - 20, 420)
+                    anchors.centerIn: parent
+                    radius: 16
+                    color: root.base
+                    border.width: 1
+                    border.color: root.surface1
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 14
+                        spacing: 10
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
+                            Text {
+                                text: root.serviceIcon(root.selectedService)
+                                font.family: "Iosevka Nerd Font"
+                                font.pixelSize: Math.round(22 * root.uiTextScale)
+                                color: root.stateColor(root.serviceState(root.selectedService), root.serviceAvailable(root.selectedService), root.serviceManaged(root.selectedService))
+                            }
+                            Text {
+                                text: root.serviceTitle(root.selectedService)
+                                font.family: "Michroma"
+                                font.pixelSize: Math.round(13 * root.uiTextScale)
+                                font.weight: Font.Black
+                                color: root.text
+                            }
+                            Item { Layout.fillWidth: true }
+                            Switch {
+                                visible: root.selectedService === "opencode"
+                                checked: root.opencodeSwitch
+                                enabled: root.serviceSwitchEnabled(root.opencodeAvailable, root.opencodeState) && root.serviceManaged("opencode")
+                                onToggled: {
+                                    if (root._suspendSwitchHandlers) return;
+                                    if (checked) root.startService("opencode"); else root.stopService("opencode");
+                                }
+                            }
+                            Switch {
+                                visible: root.selectedService === "ollama"
+                                checked: root.ollamaSwitch
+                                enabled: root.serviceSwitchEnabled(root.ollamaAvailable, root.ollamaState) && root.serviceManaged("ollama")
+                                onToggled: {
+                                    if (root._suspendSwitchHandlers) return;
+                                    if (checked) root.startService("ollama"); else root.stopService("ollama");
+                                }
+                            }
+                            Switch {
+                                visible: root.selectedService === "openclaw"
+                                checked: root.openclawSwitch
+                                enabled: root.serviceSwitchEnabled(root.openclawAvailable, root.openclawState) && root.serviceManaged("openclaw")
+                                onToggled: {
+                                    if (root._suspendSwitchHandlers) return;
+                                    if (checked) root.startService("openclaw"); else root.stopService("openclaw");
+                                }
+                            }
+                            Rectangle {
+                                width: 28
+                                height: 28
+                                radius: 8
+                                color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.7)
+                                border.width: 1
+                                border.color: root.surface2
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: ""
+                                    font.family: "Iosevka Nerd Font"
+                                    font.pixelSize: Math.round(13 * root.uiTextScale)
+                                    color: root.subtext0
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.closeServicePopup()
+                                }
+                            }
+                        }
 
                         Rectangle {
-                            id: opencodeCard
-                            width: Math.floor((cardsGrid.width - cardsGrid.spacing) / 2)
-                            implicitHeight: opencodeCardContent.implicitHeight + 28
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 1
+                            color: Qt.rgba(root.surface2.r, root.surface2.g, root.surface2.b, 0.5)
+                        }
+
+                        ScrollView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
                             clip: true
-                            radius: 14
-                            color: root.cardBackground(root.opencodeState, "opencode")
-                            border.width: 1
-                            border.color: root.cardBorder(root.opencodeState, "opencode")
 
                             ColumnLayout {
-                                id: opencodeCardContent
-                                width: parent.width - 34
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.top: parent.top
-                                anchors.topMargin: 14
-                                spacing: 10
+                                width: servicePopup.width - 44
+                                spacing: 8
 
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 10
-
-                                    ColumnLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 3
-                                        Text { text: "OpenCode"; font.family: "Michroma"; font.pixelSize: 15; font.weight: Font.Black; color: root.text }
-                                        Text { text: "opencode serve --hostname <host> --port <port>"; font.family: "Iosevka Nerd Font"; font.pixelSize: 11; color: Qt.lighter(root.subtext0, 1.2) }
-                                    }
-
-                                    Item { Layout.fillWidth: true }
-
-                                    RowLayout {
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        Layout.preferredWidth: 132
-                                        Layout.fillWidth: false
-                                        spacing: 8
-                                        Text { text: root.statusDotText(root.opencodeState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.opencodeState, root.opencodeAvailable, root.serviceManaged("opencode")) }
-                                        Text { text: root.shortStateLabel(root.opencodeState, root.opencodeAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
-                                        Switch {
-                                            checked: root.opencodeSwitch
-                                            enabled: root.serviceSwitchEnabled(root.opencodeAvailable, root.opencodeState) && root.serviceManaged("opencode")
-                                            onToggled: {
-                                                if (root._suspendSwitchHandlers) return;
-                                                if (checked) root.startService("opencode"); else root.stopService("opencode");
-                                            }
-                                        }
-                                    }
+                                Text {
+                                    visible: root.selectedService === "opencode"
+                                    text: "Host"
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
                                 }
-
-                                GridLayout {
-                                    id: opencodeGrid
-                                    columns: 1
-                                    columnSpacing: 8
-                                    rowSpacing: 8
-                                    Layout.fillWidth: true
-
-                                    TextField {
-                                        Layout.fillWidth: true
-                                        implicitHeight: root.compactInputHeight
-                                        font.family: "Michroma"
-                                        font.pixelSize: 11
-                                        placeholderText: "Host"
-                                        text: cfg.opencodeHost
-                                        color: root.text
-                                        placeholderTextColor: root.subtext0
-                                        leftPadding: 8
-                                        rightPadding: 8
-                                        background: Rectangle {
-                                            radius: 8
-                                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                            border.width: 1
-                                            border.color: root.surface2
-                                        }
-                                        onEditingFinished: cfg.opencodeHost = text.trim() === "" ? "0.0.0.0" : text.trim()
-                                    }
-                                    TextField {
-                                        Layout.fillWidth: true
-                                        implicitHeight: root.compactInputHeight
-                                        font.family: "Michroma"
-                                        font.pixelSize: 11
-                                        placeholderText: "Port"
-                                        text: String(cfg.opencodePort)
-                                        inputMethodHints: Qt.ImhDigitsOnly
-                                        color: root.text
-                                        placeholderTextColor: root.subtext0
-                                        leftPadding: 8
-                                        rightPadding: 8
-                                        background: Rectangle {
-                                            radius: 8
-                                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                            border.width: 1
-                                            border.color: root.surface2
-                                        }
-                                        onEditingFinished: cfg.opencodePort = root.sanitizePort(text, 4096)
-                                    }
-                                }
-
                                 TextField {
+                                    visible: root.selectedService === "opencode"
                                     Layout.fillWidth: true
                                     implicitHeight: root.compactInputHeight
                                     font.family: "Michroma"
-                                    font.pixelSize: 11
-                                    placeholderText: "Extra args (optional)"
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
+                                    placeholderText: "Host"
+                                    text: cfg.opencodeHost
+                                    color: root.text
+                                    placeholderTextColor: root.subtext0
+                                    selectionColor: Qt.rgba(root.mauve.r, root.mauve.g, root.mauve.b, 0.45)
+                                    selectedTextColor: root.text
+                                    background: DarkFieldBg {}
+                                    onEditingFinished: cfg.opencodeHost = text.trim() === "" ? "0.0.0.0" : text.trim()
+                                }
+                                Text {
+                                    visible: root.selectedService === "opencode"
+                                    text: "Port"
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
+                                }
+                                TextField {
+                                    visible: root.selectedService === "opencode"
+                                    Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
+                                    placeholderText: "Port"
+                                    text: String(cfg.opencodePort)
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    color: root.text
+                                    placeholderTextColor: root.subtext0
+                                    selectionColor: Qt.rgba(root.mauve.r, root.mauve.g, root.mauve.b, 0.45)
+                                    selectedTextColor: root.text
+                                    background: DarkFieldBg {}
+                                    onEditingFinished: cfg.opencodePort = root.sanitizePort(text, 4096)
+                                }
+                                Text {
+                                    visible: root.selectedService === "opencode"
+                                    text: "Extra arguments"
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
+                                }
+                                TextField {
+                                    visible: root.selectedService === "opencode"
+                                    Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
+                                    placeholderText: "Extra args"
                                     text: cfg.opencodeArgs
                                     color: root.text
                                     placeholderTextColor: root.subtext0
-                                    leftPadding: 8
-                                    rightPadding: 8
-                                    background: Rectangle {
-                                        radius: 8
-                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                        border.width: 1
-                                        border.color: root.surface2
-                                    }
+                                    selectionColor: Qt.rgba(root.mauve.r, root.mauve.g, root.mauve.b, 0.45)
+                                    selectedTextColor: root.text
+                                    background: DarkFieldBg {}
                                     onEditingFinished: cfg.opencodeArgs = text
                                 }
 
                                 Text {
-                                    Layout.fillWidth: true
-                                    wrapMode: Text.Wrap
-                                    text: !root.serviceManaged("opencode")
-                                          ? "Managed by another user/session (not controllable here)."
-                                          : root.opencodeMessage
+                                    visible: root.selectedService === "ollama"
+                                    text: "Host"
                                     font.family: "Michroma"
-                                    font.pixelSize: 11
-                                    color: root.text
-                                    visible: !root.serviceManaged("opencode") || root.opencodeState === "failed" || root.opencodeState === "starting"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
                                 }
-                            }
-                        }
-
-                        Rectangle {
-                            id: ollamaCard
-                            width: Math.floor((cardsGrid.width - cardsGrid.spacing) / 2)
-                            implicitHeight: ollamaCardContent.implicitHeight + 28
-                            clip: true
-                            radius: 14
-                            color: root.cardBackground(root.ollamaState, "ollama")
-                            border.width: 1
-                            border.color: root.cardBorder(root.ollamaState, "ollama")
-
-                            ColumnLayout {
-                                id: ollamaCardContent
-                                width: parent.width - 34
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.top: parent.top
-                                anchors.topMargin: 14
-                                spacing: 10
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 10
-
-                                    ColumnLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 3
-                                        Text { text: "Ollama"; font.family: "Michroma"; font.pixelSize: 15; font.weight: Font.Black; color: root.text }
-                                        Text { text: "Model selection adapts to detected VRAM"; font.family: "Michroma"; font.pixelSize: 11; color: Qt.lighter(root.subtext0, 1.2) }
-                                    }
-
-                                    Item { Layout.fillWidth: true }
-
-                                    RowLayout {
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        Layout.preferredWidth: 132
-                                        Layout.fillWidth: false
-                                        spacing: 8
-                                        Text { text: root.statusDotText(root.ollamaState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.ollamaState, root.ollamaAvailable, root.serviceManaged("ollama")) }
-                                        Text { text: root.shortStateLabel(root.ollamaState, root.ollamaAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
-                                        Switch {
-                                            checked: root.ollamaSwitch
-                                            enabled: root.serviceSwitchEnabled(root.ollamaAvailable, root.ollamaState) && root.serviceManaged("ollama")
-                                            onToggled: {
-                                                if (root._suspendSwitchHandlers) return;
-                                                if (checked) root.startService("ollama"); else root.stopService("ollama");
-                                            }
-                                        }
-                                    }
-                                }
-
-                                GridLayout {
-                                    id: ollamaGrid
-                                    columns: 1
-                                    columnSpacing: 8
-                                    rowSpacing: 8
-                                    Layout.fillWidth: true
-
-                                    TextField {
-                                        Layout.fillWidth: true
-                                        implicitHeight: root.compactInputHeight
-                                        font.family: "Michroma"
-                                        font.pixelSize: 11
-                                        placeholderText: "Host"
-                                        text: cfg.ollamaHost
-                                        color: root.text
-                                        placeholderTextColor: root.subtext0
-                                        leftPadding: 8
-                                        rightPadding: 8
-                                        background: Rectangle {
-                                            radius: 8
-                                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                            border.width: 1
-                                            border.color: root.surface2
-                                        }
-                                        onEditingFinished: cfg.ollamaHost = text.trim() === "" ? "127.0.0.1" : text.trim()
-                                    }
-                                    TextField {
-                                        Layout.fillWidth: true
-                                        implicitHeight: root.compactInputHeight
-                                        font.family: "Michroma"
-                                        font.pixelSize: 11
-                                        placeholderText: "Port"
-                                        text: String(cfg.ollamaPort)
-                                        inputMethodHints: Qt.ImhDigitsOnly
-                                        color: root.text
-                                        placeholderTextColor: root.subtext0
-                                        leftPadding: 8
-                                        rightPadding: 8
-                                        background: Rectangle {
-                                            radius: 8
-                                            color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                            border.width: 1
-                                            border.color: root.surface2
-                                        }
-                                        onEditingFinished: cfg.ollamaPort = root.sanitizePort(text, 11434)
-                                    }
-                                }
-
-                                ComboBox {
+                                TextField {
+                                    visible: root.selectedService === "ollama"
                                     Layout.fillWidth: true
                                     implicitHeight: root.compactInputHeight
                                     font.family: "Michroma"
-                                    font.pixelSize: 11
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
+                                    placeholderText: "Host"
+                                    text: cfg.ollamaHost
+                                    color: root.text
+                                    placeholderTextColor: root.subtext0
+                                    selectionColor: Qt.rgba(root.blue.r, root.blue.g, root.blue.b, 0.45)
+                                    selectedTextColor: root.text
+                                    background: DarkFieldBg {}
+                                    onEditingFinished: cfg.ollamaHost = text.trim() === "" ? "127.0.0.1" : text.trim()
+                                }
+                                Text {
+                                    visible: root.selectedService === "ollama"
+                                    text: "Port"
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
+                                }
+                                TextField {
+                                    visible: root.selectedService === "ollama"
+                                    Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
+                                    placeholderText: "Port"
+                                    text: String(cfg.ollamaPort)
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    color: root.text
+                                    placeholderTextColor: root.subtext0
+                                    selectionColor: Qt.rgba(root.blue.r, root.blue.g, root.blue.b, 0.45)
+                                    selectedTextColor: root.text
+                                    background: DarkFieldBg {}
+                                    onEditingFinished: cfg.ollamaPort = root.sanitizePort(text, 11434)
+                                }
+                                ComboBox {
+                                    id: ollamaModelCombo
+                                    visible: root.selectedService === "ollama"
+                                    Layout.fillWidth: true
+                                    implicitHeight: root.compactInputHeight
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
                                     model: root.ollamaCandidates
                                     currentIndex: Math.max(0, root.ollamaCandidates.indexOf(cfg.ollamaModel))
-                                    background: Rectangle {
-                                        radius: 8
-                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                        border.width: 1
-                                        border.color: root.surface2
+                                    background: DarkFieldBg {}
+                                    contentItem: Text {
+                                        text: ollamaModelCombo.currentText
+                                        color: root.text
+                                        font.family: "Michroma"
+                                        font.pixelSize: Math.round(11 * root.uiTextScale)
+                                        verticalAlignment: Text.AlignVCenter
+                                        leftPadding: 10
+                                        rightPadding: 10
+                                    }
+                                    popup: Popup {
+                                        y: ollamaModelCombo.height + 2
+                                        width: ollamaModelCombo.width
+                                        padding: 4
+                                        background: Rectangle {
+                                            radius: 10
+                                            color: Qt.rgba(root.crust.r, root.crust.g, root.crust.b, 0.95)
+                                            border.width: 1
+                                            border.color: root.surface1
+                                        }
+                                        contentItem: ListView {
+                                            clip: true
+                                            implicitHeight: contentHeight
+                                            model: ollamaModelCombo.popup.visible ? ollamaModelCombo.delegateModel : null
+                                            currentIndex: ollamaModelCombo.highlightedIndex
+                                        }
+                                    }
+                                    delegate: ItemDelegate {
+                                        width: ollamaModelCombo.width - 8
+                                        contentItem: Text {
+                                            text: modelData
+                                            color: root.text
+                                            font.family: "Michroma"
+                                            font.pixelSize: Math.round(11 * root.uiTextScale)
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+                                        background: Rectangle {
+                                            radius: 8
+                                            color: highlighted ? Qt.rgba(root.surface1.r, root.surface1.g, root.surface1.b, 0.9) : "transparent"
+                                        }
                                     }
                                     onActivated: cfg.ollamaModel = currentText
                                 }
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 8
-                                    CheckBox {
-                                        checked: cfg.ollamaAutoPull
-                                        onToggled: cfg.ollamaAutoPull = checked
-                                    }
-                                    Text {
-                                        text: "Auto pull model when enabling"
-                                        font.family: "Michroma"
-                                        font.pixelSize: 11
-                                        color: root.text
-                                    }
+                                Text {
+                                    visible: root.selectedService === "ollama"
+                                    text: "Model"
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
+                                }
+                                CheckBox {
+                                    visible: root.selectedService === "ollama"
+                                    text: "Auto pull model when enabling"
+                                    checked: cfg.ollamaAutoPull
+                                    palette.text: root.text
+                                    onToggled: cfg.ollamaAutoPull = checked
+                                }
+                                Text {
+                                    visible: root.selectedService === "ollama"
+                                    text: "Auto pull"
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
                                 }
 
                                 Text {
-                                    Layout.fillWidth: true
-                                    wrapMode: Text.Wrap
-                                    text: !root.serviceManaged("ollama")
-                                          ? "Managed by another user/session (not controllable here)."
-                                          : root.ollamaMessage
+                                    visible: root.selectedService === "openclaw"
+                                    text: "Start command"
                                     font.family: "Michroma"
-                                    font.pixelSize: 11
-                                    color: root.text
-                                    visible: !root.serviceManaged("ollama") || root.ollamaState === "failed" || root.ollamaState === "starting"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
                                 }
-                            }
-                        }
-
-                        Rectangle {
-                            id: openclawCard
-                            width: Math.floor((cardsGrid.width - cardsGrid.spacing) / 2)
-                            implicitHeight: openclawCardContent.implicitHeight + 28
-                            clip: true
-                            radius: 14
-                            color: root.cardBackground(root.openclawState, "openclaw")
-                            border.width: 1
-                            border.color: root.cardBorder(root.openclawState, "openclaw")
-
-                            ColumnLayout {
-                                id: openclawCardContent
-                                width: parent.width - 34
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.top: parent.top
-                                anchors.topMargin: 14
-                                spacing: 10
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 10
-
-                                    ColumnLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 3
-                                        Text { text: "OpenClaw"; font.family: "Michroma"; font.pixelSize: 15; font.weight: Font.Black; color: root.text }
-                                        Text { text: "Manual command mode"; font.family: "Michroma"; font.pixelSize: 11; color: Qt.lighter(root.subtext0, 1.2) }
-                                    }
-
-                                    Item { Layout.fillWidth: true }
-
-                                    RowLayout {
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        Layout.preferredWidth: 132
-                                        Layout.fillWidth: false
-                                        spacing: 8
-                                        Text { text: root.statusDotText(root.openclawState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.openclawState, root.openclawAvailable, root.serviceManaged("openclaw")) }
-                                        Text { text: root.shortStateLabel(root.openclawState, root.openclawAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
-                                        Switch {
-                                            checked: root.openclawSwitch
-                                            enabled: root.serviceSwitchEnabled(root.openclawAvailable, root.openclawState) && root.serviceManaged("openclaw")
-                                            onToggled: {
-                                                if (root._suspendSwitchHandlers) return;
-                                                if (checked) root.startService("openclaw"); else root.stopService("openclaw");
-                                            }
-                                        }
-                                    }
-                                }
-
                                 TextField {
+                                    visible: root.selectedService === "openclaw"
                                     Layout.fillWidth: true
                                     implicitHeight: root.compactInputHeight
                                     font.family: "Michroma"
-                                    font.pixelSize: 11
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
                                     placeholderText: "Start command"
                                     text: cfg.openclawStartCmd
                                     color: root.text
                                     placeholderTextColor: root.subtext0
-                                    leftPadding: 8
-                                    rightPadding: 8
-                                    background: Rectangle {
-                                        radius: 8
-                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                        border.width: 1
-                                        border.color: root.surface2
-                                    }
+                                    selectionColor: Qt.rgba(root.peach.r, root.peach.g, root.peach.b, 0.45)
+                                    selectedTextColor: root.text
+                                    background: DarkFieldBg {}
                                     onEditingFinished: cfg.openclawStartCmd = text.trim() === "" ? "openclaw gateway --port 18789" : text
                                 }
-
+                                Text {
+                                    visible: root.selectedService === "openclaw"
+                                    text: "Process match regex"
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
+                                }
                                 TextField {
+                                    visible: root.selectedService === "openclaw"
                                     Layout.fillWidth: true
                                     implicitHeight: root.compactInputHeight
                                     font.family: "Michroma"
-                                    font.pixelSize: 11
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
                                     placeholderText: "Process match regex"
                                     text: cfg.openclawMatch
                                     color: root.text
                                     placeholderTextColor: root.subtext0
-                                    leftPadding: 8
-                                    rightPadding: 8
-                                    background: Rectangle {
-                                        radius: 8
-                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                        border.width: 1
-                                        border.color: root.surface2
-                                    }
+                                    selectionColor: Qt.rgba(root.peach.r, root.peach.g, root.peach.b, 0.45)
+                                    selectedTextColor: root.text
+                                    background: DarkFieldBg {}
                                     onEditingFinished: cfg.openclawMatch = text.trim() === "" ? "openclaw.*gateway" : text
                                 }
-
+                                Text {
+                                    visible: root.selectedService === "openclaw"
+                                    text: "Stop command"
+                                    font.family: "Michroma"
+                                    font.pixelSize: Math.round(10 * root.uiTextScale)
+                                    color: root.subtext0
+                                }
                                 TextField {
+                                    visible: root.selectedService === "openclaw"
                                     Layout.fillWidth: true
                                     implicitHeight: root.compactInputHeight
                                     font.family: "Michroma"
-                                    font.pixelSize: 11
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
                                     placeholderText: "Stop command (optional)"
                                     text: cfg.openclawStopCmd
                                     color: root.text
                                     placeholderTextColor: root.subtext0
-                                    leftPadding: 8
-                                    rightPadding: 8
-                                    background: Rectangle {
-                                        radius: 8
-                                        color: Qt.rgba(root.surface0.r, root.surface0.g, root.surface0.b, 0.82)
-                                        border.width: 1
-                                        border.color: root.surface2
-                                    }
+                                    selectionColor: Qt.rgba(root.peach.r, root.peach.g, root.peach.b, 0.45)
+                                    selectedTextColor: root.text
+                                    background: DarkFieldBg {}
                                     onEditingFinished: cfg.openclawStopCmd = text
                                 }
 
                                 Text {
                                     Layout.fillWidth: true
                                     wrapMode: Text.Wrap
-                                    text: !root.serviceManaged("openclaw")
+                                    text: root.selectedService === "" ? "" : (!root.serviceManaged(root.selectedService)
                                           ? "Managed by another user/session (not controllable here)."
-                                          : root.openclawMessage
+                                          : root.serviceMessage(root.selectedService))
                                     font.family: "Michroma"
-                                    font.pixelSize: 11
+                                    font.pixelSize: Math.round(11 * root.uiTextScale)
                                     color: root.text
-                                    visible: !root.serviceManaged("openclaw") || root.openclawState === "failed" || root.openclawState === "starting"
+                                    visible: root.selectedService !== ""
                                 }
                             }
                         }
-
                     }
+
                 }
             }
         }
