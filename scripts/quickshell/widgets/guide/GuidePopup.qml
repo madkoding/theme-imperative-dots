@@ -245,7 +245,6 @@ Item {
                             Layout.alignment: Qt.AlignVCenter
                             spacing: 2
                             Text { text: I18n.s("Configuration"); font.family: "Michroma"; font.weight: Font.Black; font.pixelSize: 15; color: root.text; Layout.alignment: Qt.AlignLeft }
-                            Text { text: "v1.0.4"; font.family: "Michroma"; font.pixelSize: 11; color: root.subtext0; Layout.alignment: Qt.AlignLeft }
                         }
                     }
                 }
@@ -290,31 +289,35 @@ Item {
 
                 Item { Layout.fillHeight: true }
 
-                // Close Button
-                Rectangle {
-                    Layout.fillWidth: true; Layout.preferredHeight: 44; radius: 8
-                    color: closeHover.containsMouse ? Qt.alpha(root.red, 0.1) : "transparent"
-                    border.color: closeHover.containsMouse ? root.red : root.surface1
-                    border.width: 1
-                    scale: closeHover.pressed ? 0.95 : (closeHover.containsMouse ? 1.02 : 1.0)
-                    
-                    Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutBack } }
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    Behavior on border.color { ColorAnimation { duration: 150 } }
+            }
 
-                    Item {
-                        anchors.centerIn: parent
-                        width: arrowText.implicitWidth; height: arrowText.implicitHeight
-                        Text { 
-                            id: arrowText
-                            text: "" 
-                            font.family: "Iosevka Nerd Font"
-                            font.pixelSize: 16
-                            color: closeHover.containsMouse ? root.red : root.subtext0
-                            Behavior on color { ColorAnimation { duration: 150 } }
-                        }
-                    }
-                    MouseArea { id: closeHover; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: closeSequence.start() }
+            Rectangle {
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.topMargin: 10
+                anchors.rightMargin: 10
+                width: 28
+                height: 28
+                radius: 8
+                color: closeIconHover.containsMouse ? Qt.alpha(root.red, 0.15) : Qt.alpha(root.surface0, 0.45)
+                border.color: closeIconHover.containsMouse ? root.red : root.surface1
+                border.width: 1
+                z: 5
+
+                Text {
+                    anchors.centerIn: parent
+                    text: ""
+                    font.family: "Iosevka Nerd Font"
+                    font.pixelSize: 14
+                    color: closeIconHover.containsMouse ? root.red : root.subtext0
+                }
+
+                MouseArea {
+                    id: closeIconHover
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: closeSequence.start()
                 }
             }
         }
@@ -405,8 +408,8 @@ Item {
                                     ColumnLayout {
                                         Layout.alignment: Qt.AlignVCenter
                                         spacing: 1
-                                        Text { text: I18n.s("madOS Distro Author"); font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0; font.weight: Font.Medium }
-                                        Text { text: "madkoding"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: root.blue }
+                                        Text { text: I18n.s("Creator and maintainer of the madOS distribution"); font.family: "Michroma"; font.pixelSize: 10; color: root.text; font.weight: Font.Medium }
+                                        Text { text: "madkoding"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: root.text }
                                     }
 
                                     Item { Layout.fillWidth: true }
@@ -456,8 +459,8 @@ Item {
                                     ColumnLayout {
                                         Layout.alignment: Qt.AlignVCenter
                                         spacing: 1
-                                        Text { text: I18n.s("Original theme: ImperativeDots (ilyamiro)"); font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0; font.weight: Font.Medium }
-                                        Text { text: I18n.s("Fork with custom modifications"); font.family: "Michroma"; font.pixelSize: 12; font.weight: Font.Black; color: root.mauve }
+                                        Text { text: I18n.s("Original ImperativeDots theme and base visual system"); font.family: "Michroma"; font.pixelSize: 10; color: root.text; font.weight: Font.Medium }
+                                        Text { text: "ilyamiro"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: root.text }
                                     }
 
                                     Item { Layout.fillWidth: true }
@@ -507,8 +510,8 @@ Item {
                                     ColumnLayout {
                                         Layout.alignment: Qt.AlignVCenter
                                         spacing: 1
-                                        Text { text: I18n.s("SKWD Shell and Wallpaper manager"); font.family: "Michroma"; font.pixelSize: 10; color: root.subtext0; font.weight: Font.Medium }
-                                        Text { text: "liixini"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: root.sapphire }
+                                        Text { text: I18n.s("SKWD shell framework and wallpaper tooling"); font.family: "Michroma"; font.pixelSize: 10; color: root.text; font.weight: Font.Medium }
+                                        Text { text: "liixini"; font.family: "Michroma"; font.pixelSize: 16; font.weight: Font.Black; color: root.text }
                                     }
 
                                     Item { Layout.fillWidth: true }

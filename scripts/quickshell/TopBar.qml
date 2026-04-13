@@ -966,9 +966,7 @@ PanelWindow {
                         radius: 10; Layout.preferredHeight: sysLayout.pillHeight;
                         clip: true
                         
-                        property real targetWidth: helpLayoutRow.implicitWidth + 24
-                        Layout.preferredWidth: targetWidth
-                        Behavior on targetWidth { NumberAnimation { duration: 500; easing.type: Easing.OutQuint } }
+                        Layout.preferredWidth: 40
                         
                         scale: isHovered ? 1.05 : 1.0
                         Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutExpo } }
@@ -980,10 +978,7 @@ PanelWindow {
                         transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
-                        RowLayout { id: helpLayoutRow; anchors.centerIn: parent; spacing: 6
-                            Text { text: "?"; font.family: "Michroma"; font.pixelSize: 14; font.weight: Font.Black; color: parent.parent.isHovered ? mocha.blue : mocha.text }
-                            Text { text: I18n.s("Help"); font.family: "Michroma"; font.pixelSize: 11; font.weight: Font.Bold; color: parent.parent.isHovered ? mocha.blue : mocha.subtext0 }
-                        }
+                        Text { anchors.centerIn: parent; text: ""; font.family: "Iosevka Nerd Font"; font.pixelSize: 16; color: parent.isHovered ? mocha.blue : mocha.text }
                         MouseArea {
                             id: helpMouse
                             anchors.fill: parent
