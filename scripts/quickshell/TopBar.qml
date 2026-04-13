@@ -144,7 +144,7 @@ PanelWindow {
     // 1. The continuous background daemon
     Process {
         id: wsDaemon
-        command: ["bash", "-c", "~/.config/hypr/scripts/quickshell/workspaces.sh"]
+        command: ["bash", "-c", "~/.config/quickshell/workspaces.sh"]
         running: true
     }
 
@@ -213,7 +213,7 @@ PanelWindow {
     Process {
         id: musicForceRefresh
         running: true
-        command: ["bash", "-c", "bash ~/.config/hypr/scripts/quickshell/music/music_info.sh | tee /tmp/music_info.json"]
+        command: ["bash", "-c", "bash ~/.config/quickshell/widgets/music/music_info.sh | tee /tmp/music_info.json"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();
@@ -237,7 +237,7 @@ PanelWindow {
     Process {
         id: sysPoller
         running: true
-        command: ["bash", "-c", "$HOME/.config/hypr/scripts/quickshell/sys_info.sh"]
+        command: ["bash", "-c", "$HOME/.config/quickshell/sys_info.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();
@@ -281,7 +281,7 @@ PanelWindow {
     }
     Process {
         id: sysWaiter
-        command: ["bash", "-c", "~/.config/hypr/scripts/quickshell/sys_waiter.sh"]
+        command: ["bash", "-c", "~/.config/quickshell/sys_waiter.sh"]
         stdout: StdioCollector {
             onStreamFinished: sysPoller.running = true
         }
@@ -291,9 +291,9 @@ PanelWindow {
     Process {
         id: weatherPoller
         command: ["bash", "-c", `
-            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-icon)"
-            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-temp)"
-            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-hex)"
+            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-icon)"
+            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-temp)"
+            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-hex)"
         `]
         stdout: StdioCollector {
             onStreamFinished: {
@@ -310,10 +310,10 @@ PanelWindow {
     Process {
         id: weatherRefreshPoller
         command: ["bash", "-c", `
-            ~/.config/hypr/scripts/quickshell/calendar/weather.sh --refresh >/dev/null 2>&1
-            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-icon)"
-            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-temp)"
-            echo "$(~/.config/hypr/scripts/quickshell/calendar/weather.sh --current-hex)"
+            ~/.config/quickshell/widgets/calendar/weather.sh --refresh >/dev/null 2>&1
+            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-icon)"
+            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-temp)"
+            echo "$(~/.config/quickshell/widgets/calendar/weather.sh --current-hex)"
         `]
         stdout: SplitParser {
             onRead: data => {
@@ -329,7 +329,7 @@ PanelWindow {
 
     Process {
         id: weatherConfigTopBarPoller
-        command: ["bash", "-c", "~/.config/hypr/scripts/quickshell/calendar/weather.sh --get-config"]
+        command: ["bash", "-c", "~/.config/quickshell/widgets/calendar/weather.sh --get-config"]
         stdout: StdioCollector {
             onStreamFinished: {
                 let txt = this.text.trim();

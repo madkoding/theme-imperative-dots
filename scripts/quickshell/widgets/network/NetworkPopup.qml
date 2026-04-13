@@ -1826,7 +1826,7 @@ Item {
                             
                             wifiPendingReset.restart();
                             window.wifiPower = window.expectedWifiPower; // Optimistic
-                            Quickshell.execDetached(["nmcli", "radio", "wifi", window.wifiPower]);
+                            Quickshell.execDetached(["bash", window.scriptsDir + "/wifi_panel_logic.sh", "--toggle"]);
                             wifiPoller.running = true;
                         } else {
                             if (window.btPowerPending) return;

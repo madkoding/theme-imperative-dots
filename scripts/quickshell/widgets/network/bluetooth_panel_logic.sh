@@ -34,9 +34,36 @@ get_audio_profile() {
     echo "$desc"
 }
 
+ensure_controller() {
+    if bluetoothctl show >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local ctl
+    ctl=$(bluetoothctl list 2>/dev/null | awk 'NR==1 {print $2}')
+    if [ -z "$ctl" ]; then
+        return 1
+    fi
+
+    bluetoothctl select "$ctl" >/dev/null 2>&1 || true
+    bluetoothctl show >/dev/null 2>&1
+}
+
+bt_power_state() {
+    if ! ensure_controller; then
+        echo "off"
+        return
+    fi
+
+    if bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then
+        echo "on"
+    else
+        echo "off"
+    fi
+}
+
 get_status() {
-    power="off"
-    if bluetoothctl show | grep -q "Powered: yes"; then power="on"; fi
+    power="$(bt_power_state)"
 
     connected_json="[]"
     devices_json="[]"
@@ -136,10 +163,21 @@ get_status() {
 }
 
 toggle_power() {
-    if bluetoothctl show | grep -q "Powered: yes"; then
-        bluetoothctl power off
+    if [ "$(bt_power_state)" = "on" ]; then
+        bluetoothctl power off >/dev/null 2>&1 || true
     else
-        bluetoothctl power on
+        rfkill unblock bluetooth >/dev/null 2>&1 || true
+        ensure_controller >/dev/null 2>&1 || true
+        bluetoothctl power on >/dev/null 2>&1 || true
+
+        if [ "$(bt_power_state)" != "on" ]; then
+            local ctl
+            ctl=$(bluetoothctl list 2>/dev/null | awk 'NR==1 {print $2}')
+            if [ -n "$ctl" ]; then
+                bluetoothctl select "$ctl" >/dev/null 2>&1 || true
+                bluetoothctl power on >/dev/null 2>&1 || true
+            fi
+        fi
     fi
     sleep 0.5
 }
