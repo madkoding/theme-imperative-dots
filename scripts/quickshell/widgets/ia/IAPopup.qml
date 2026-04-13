@@ -67,6 +67,9 @@ Item {
     property bool opencodeAvailable: false
     property bool ollamaAvailable: false
     property bool openclawAvailable: true
+    property bool opencodeForeign: false
+    property bool ollamaForeign: false
+    property bool openclawForeign: false
 
     property bool _suspendSwitchHandlers: false
 
@@ -107,6 +110,13 @@ Item {
 
     function serviceSwitchEnabled(available, state) {
         return available && state !== "starting";
+    }
+
+    function serviceManaged(service) {
+        if (service === "opencode") return !root.opencodeForeign;
+        if (service === "ollama") return !root.ollamaForeign;
+        if (service === "openclaw") return !root.openclawForeign;
+        return true;
     }
 
     function serviceAccent(service) {
@@ -364,6 +374,9 @@ Item {
                 root.opencodeAvailable = !!(s.opencode && s.opencode.available);
                 root.ollamaAvailable = !!(s.ollama && s.ollama.available);
                 root.openclawAvailable = !!(s.openclaw && s.openclaw.available);
+                root.opencodeForeign = !!(s.ownership && s.ownership.opencode_foreign);
+                root.ollamaForeign = !!(s.ownership && s.ownership.ollama_foreign);
+                root.openclawForeign = !!(s.ownership && s.ownership.openclaw_foreign);
 
                 if (s.opencode && s.opencode.running) root.maybeSetPassiveState("opencode", "running", "OpenCode is running");
                 else root.maybeSetPassiveState("opencode", "off", "OpenCode is stopped");
@@ -663,7 +676,7 @@ Item {
                                         Text { text: root.shortStateLabel(root.opencodeState, root.opencodeAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.opencodeSwitch
-                                            enabled: root.serviceSwitchEnabled(root.opencodeAvailable, root.opencodeState)
+                                            enabled: root.serviceSwitchEnabled(root.opencodeAvailable, root.opencodeState) && root.serviceManaged("opencode")
                                             onToggled: {
                                                 if (root._suspendSwitchHandlers) return;
                                                 if (checked) root.startService("opencode"); else root.stopService("opencode");
@@ -743,11 +756,13 @@ Item {
                                 Text {
                                     Layout.fillWidth: true
                                     wrapMode: Text.Wrap
-                                    text: root.opencodeMessage
+                                    text: !root.serviceManaged("opencode")
+                                          ? "Managed by another user/session (not controllable here)."
+                                          : root.opencodeMessage
                                     font.family: "Michroma"
                                     font.pixelSize: 11
                                     color: root.text
-                                    visible: root.opencodeState === "failed" || root.opencodeState === "starting"
+                                    visible: !root.serviceManaged("opencode") || root.opencodeState === "failed" || root.opencodeState === "starting"
                                 }
                             }
                         }
@@ -792,7 +807,7 @@ Item {
                                         Text { text: root.shortStateLabel(root.ollamaState, root.ollamaAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.ollamaSwitch
-                                            enabled: root.serviceSwitchEnabled(root.ollamaAvailable, root.ollamaState)
+                                            enabled: root.serviceSwitchEnabled(root.ollamaAvailable, root.ollamaState) && root.serviceManaged("ollama")
                                             onToggled: {
                                                 if (root._suspendSwitchHandlers) return;
                                                 if (checked) root.startService("ollama"); else root.stopService("ollama");
@@ -883,11 +898,13 @@ Item {
                                 Text {
                                     Layout.fillWidth: true
                                     wrapMode: Text.Wrap
-                                    text: root.ollamaMessage
+                                    text: !root.serviceManaged("ollama")
+                                          ? "Managed by another user/session (not controllable here)."
+                                          : root.ollamaMessage
                                     font.family: "Michroma"
                                     font.pixelSize: 11
                                     color: root.text
-                                    visible: root.ollamaState === "failed" || root.ollamaState === "starting"
+                                    visible: !root.serviceManaged("ollama") || root.ollamaState === "failed" || root.ollamaState === "starting"
                                 }
                             }
                         }
@@ -932,7 +949,7 @@ Item {
                                         Text { text: root.shortStateLabel(root.openclawState, root.openclawAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.openclawSwitch
-                                            enabled: root.serviceSwitchEnabled(root.openclawAvailable, root.openclawState)
+                                            enabled: root.serviceSwitchEnabled(root.openclawAvailable, root.openclawState) && root.serviceManaged("openclaw")
                                             onToggled: {
                                                 if (root._suspendSwitchHandlers) return;
                                                 if (checked) root.startService("openclaw"); else root.stopService("openclaw");
@@ -1004,11 +1021,13 @@ Item {
                                 Text {
                                     Layout.fillWidth: true
                                     wrapMode: Text.Wrap
-                                    text: root.openclawMessage
+                                    text: !root.serviceManaged("openclaw")
+                                          ? "Managed by another user/session (not controllable here)."
+                                          : root.openclawMessage
                                     font.family: "Michroma"
                                     font.pixelSize: 11
                                     color: root.text
-                                    visible: root.openclawState === "failed" || root.openclawState === "starting"
+                                    visible: !root.serviceManaged("openclaw") || root.openclawState === "failed" || root.openclawState === "starting"
                                 }
                             }
                         }

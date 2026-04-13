@@ -959,6 +959,34 @@ PanelWindow {
                         }
                     }
 
+                    // IA Services
+                    Rectangle {
+                        property bool isHovered: iaMouse.containsMouse
+                        color: isHovered ? Qt.rgba(mocha.surface1.r, mocha.surface1.g, mocha.surface1.b, 0.6) : Qt.rgba(mocha.surface0.r, mocha.surface0.g, mocha.surface0.b, 0.4)
+                        radius: 10; Layout.preferredHeight: sysLayout.pillHeight;
+                        clip: true
+
+                        Layout.preferredWidth: 40
+
+                        scale: isHovered ? 1.05 : 1.0
+                        Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutExpo } }
+                        Behavior on color { ColorAnimation { duration: 200 } }
+
+                        property bool initAnimTrigger: false
+                        Timer { running: rightLayout.showLayout && !parent.initAnimTrigger; interval: 0; onTriggered: parent.initAnimTrigger = true }
+                        opacity: initAnimTrigger ? 1 : 0
+                        transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
+
+                        Text { anchors.centerIn: parent; text: "󰚩"; font.family: "Iosevka Nerd Font"; font.pixelSize: 16; color: parent.isHovered ? mocha.mauve : mocha.text }
+                        MouseArea {
+                            id: iaMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onClicked: Quickshell.execDetached(["bash", "-c", "~/.config/hypr/scripts/qs_manager.sh toggle ia"])
+                        }
+                    }
+
                     // Help (keybinds)
                     Rectangle {
                         property bool isHovered: helpMouse.containsMouse

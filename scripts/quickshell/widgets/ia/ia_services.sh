@@ -2,6 +2,7 @@
 
 ACTION="${1:-}"
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+CURRENT_UID="$(id -u)"
 mkdir -p "$RUNTIME_DIR" >/dev/null 2>&1
 
 json_bool() {
@@ -92,10 +93,31 @@ opencode_running() {
     fi
 
     if [[ -n "$host" ]]; then
-        pgrep -af '^opencode serve' 2>/dev/null | grep -F -- "--hostname ${host}" >/dev/null 2>&1 && return 0
+        pgrep -af '(^|/)opencode( |$).*serve' 2>/dev/null | grep -F -- "--hostname ${host}" >/dev/null 2>&1 && return 0
     fi
 
-    pgrep -af '^opencode serve' >/dev/null 2>&1
+    pgrep -af '(^|/)opencode( |$).*serve' >/dev/null 2>&1
+}
+
+opencode_running_user() {
+    local host="$1"
+    local port="$2"
+
+    if ! pgrep -u "$CURRENT_UID" -x opencode >/dev/null 2>&1; then
+        return 1
+    fi
+
+    if [[ -n "$port" && "$port" != "0" ]]; then
+        if port_listening "$port"; then
+            return 0
+        fi
+    fi
+
+    if [[ -n "$host" ]]; then
+        pgrep -u "$CURRENT_UID" -af '(^|/)opencode( |$).*serve' 2>/dev/null | grep -F -- "--hostname ${host}" >/dev/null 2>&1 && return 0
+    fi
+
+    pgrep -u "$CURRENT_UID" -af '(^|/)opencode( |$).*serve' >/dev/null 2>&1
 }
 
 ollama_running() {
@@ -110,7 +132,22 @@ ollama_running() {
         return 1
     fi
 
-    pgrep -af '^ollama serve' >/dev/null 2>&1
+    pgrep -af '(^|/)ollama( |$).*serve' >/dev/null 2>&1
+}
+
+ollama_running_user() {
+    local port="$1"
+
+    if ! pgrep -u "$CURRENT_UID" -x ollama >/dev/null 2>&1; then
+        return 1
+    fi
+
+    if [[ -n "$port" && "$port" != "0" ]]; then
+        port_listening "$port" && return 0
+        return 1
+    fi
+
+    pgrep -u "$CURRENT_UID" -af '(^|/)ollama( |$).*serve' >/dev/null 2>&1
 }
 
 openclaw_running() {
@@ -132,6 +169,62 @@ openclaw_running() {
     done < <(pgrep -af -- "$pattern" 2>/dev/null || true)
 
     return 1
+}
+
+openclaw_running_user() {
+    local pattern="${1:-openclaw.*gateway}"
+    local line
+    local pid
+    local cmd
+
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        pid="${line%% *}"
+        cmd="${line#* }"
+
+        [[ "$pid" == "$$" || "$pid" == "$PPID" ]] && continue
+        [[ "$cmd" == *"ia_services.sh"* ]] && continue
+        [[ "$cmd" == *"pgrep -af"* ]] && continue
+
+        return 0
+    done < <(pgrep -u "$CURRENT_UID" -af -- "$pattern" 2>/dev/null || true)
+
+    return 1
+}
+
+service_foreign_running() {
+    local pattern="$1"
+    local line
+    local pid
+    local proc_uid
+    local cmd
+
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        pid="${line%% *}"
+        cmd="${line#* }"
+
+        [[ "$pid" == "$$" || "$pid" == "$PPID" ]] && continue
+        [[ "$cmd" == *"ia_services.sh"* ]] && continue
+        [[ "$cmd" == *"pgrep -af"* ]] && continue
+
+        proc_uid="$(ps -o uid= -p "$pid" 2>/dev/null | tr -d '[:space:]')"
+        [[ -z "$proc_uid" ]] && continue
+
+        if [[ "$proc_uid" != "$CURRENT_UID" ]]; then
+            return 0
+        fi
+    done < <(pgrep -af -- "$pattern" 2>/dev/null || true)
+
+    return 1
+}
+
+kill_user_processes_by_pattern() {
+    local pattern="$1"
+    local pids
+    pids="$(pgrep -u "$CURRENT_UID" -f -- "$pattern" 2>/dev/null || true)"
+    [[ -z "$pids" ]] && return 0
+    kill $pids >/dev/null 2>&1 || true
 }
 
 array_to_json() {
@@ -274,10 +367,17 @@ status_action() {
     local op_available="false"
     local ol_available="false"
     local oc_available="true"
+    local op_foreign="false"
+    local ol_foreign="false"
+    local oc_foreign="false"
 
-    opencode_running "$op_host" "$op_port" && op_running="true"
-    ollama_running "$ol_port" && ol_running="true"
-    openclaw_running "$oc_match" && oc_running="true"
+    opencode_running_user "$op_host" "$op_port" && op_running="true"
+    ollama_running_user "$ol_port" && ol_running="true"
+    openclaw_running_user "$oc_match" && oc_running="true"
+
+    service_foreign_running '(^|/)opencode( |$).*serve' && op_foreign="true"
+    service_foreign_running '(^|/)ollama( |$).*serve' && ol_foreign="true"
+    service_foreign_running "$oc_match" && oc_foreign="true"
 
     command_exists opencode && op_available="true"
     command_exists ollama && ol_available="true"
@@ -298,10 +398,14 @@ status_action() {
         --argjson op_available "$(json_bool "$op_available")" \
         --argjson ol_available "$(json_bool "$ol_available")" \
         --argjson oc_available "$(json_bool "$oc_available")" \
+        --argjson op_foreign "$(json_bool "$op_foreign")" \
+        --argjson ol_foreign "$(json_bool "$ol_foreign")" \
+        --argjson oc_foreign "$(json_bool "$oc_foreign")" \
         '{
             opencode: {running: $op_running, available: $op_available, host: $op_host, port: $op_port},
             ollama: {running: $ol_running, available: $ol_available, host: $ol_host, port: $ol_port},
-            openclaw: {running: $oc_running, available: $oc_available, match: $oc_match}
+            openclaw: {running: $oc_running, available: $oc_available, match: $oc_match},
+            ownership: {opencode_foreign: $op_foreign, ollama_foreign: $ol_foreign, openclaw_foreign: $oc_foreign}
         }'
 }
 
@@ -316,8 +420,13 @@ opencode_start_action() {
         return
     fi
 
-    if opencode_running "$host" "$port"; then
+    if opencode_running_user "$host" "$port"; then
         emit_result true true "OpenCode ya esta activo."
+        return
+    fi
+
+    if service_foreign_running '(^|/)opencode( |$).*serve'; then
+        emit_result false false "OpenCode esta corriendo con otro usuario (ej. root). Detenlo fuera de IA Services."
         return
     fi
 
@@ -328,10 +437,10 @@ opencode_start_action() {
 
     nohup bash -lc "$cmd" >"${RUNTIME_DIR}/opencode-serve.log" 2>&1 &
 
-    if wait_for_running 12000 opencode_running "$host" "$port"; then
+    if wait_for_running 12000 opencode_running_user "$host" "$port"; then
         emit_result true true "OpenCode activo en ${host}:${port}."
     else
-        pkill -x opencode >/dev/null 2>&1 || true
+        kill_user_processes_by_pattern '^opencode( |$)'
         emit_result false false "Fallo al levantar OpenCode. Revisa ${RUNTIME_DIR}/opencode-serve.log"
     fi
 }
@@ -341,14 +450,18 @@ opencode_stop_action() {
     local port
     port="$(safe_port "${2:-4096}" "4096")"
 
-    if ! opencode_running "$host" "$port"; then
+    if ! opencode_running_user "$host" "$port"; then
+        if service_foreign_running '(^|/)opencode( |$).*serve'; then
+            emit_result false false "OpenCode esta corriendo con otro usuario (ej. root). No se puede apagar desde aqui."
+            return
+        fi
         emit_result true false "OpenCode ya estaba apagado."
         return
     fi
 
-    pkill -x opencode >/dev/null 2>&1 || true
+    kill_user_processes_by_pattern '^opencode( |$)'
 
-    if wait_for_stopped 8000 opencode_running "$host" "$port"; then
+    if wait_for_stopped 8000 opencode_running_user "$host" "$port"; then
         emit_result true false "OpenCode detenido."
     else
         emit_result false true "No se pudo detener OpenCode."
@@ -368,22 +481,27 @@ ollama_start_action() {
     fi
 
     local hostport="${host}:${port}"
-    if ollama_running "$port"; then
+    if ollama_running_user "$port"; then
         emit_result true true "Ollama ya esta activo en ${hostport}."
+        return
+    fi
+
+    if service_foreign_running '(^|/)ollama( |$).*serve'; then
+        emit_result false false "Ollama esta corriendo con otro usuario (ej. root). Detenlo fuera de IA Services."
         return
     fi
 
     local cmd="OLLAMA_HOST=$(printf '%q' "$hostport") ollama serve"
     nohup bash -lc "$cmd" >"${RUNTIME_DIR}/ollama-serve.log" 2>&1 &
 
-    if wait_for_running 12000 ollama_running "$port"; then
+    if wait_for_running 12000 ollama_running_user "$port"; then
         if [[ "$auto_pull" == "1" && -n "$model" ]]; then
             local pull_cmd="OLLAMA_HOST=$(printf '%q' "$hostport") ollama pull $(printf '%q' "$model")"
             nohup bash -lc "$pull_cmd" >"${RUNTIME_DIR}/ollama-pull.log" 2>&1 &
         fi
         emit_result true true "Ollama activo en ${hostport}."
     else
-        pkill -x ollama >/dev/null 2>&1 || true
+        kill_user_processes_by_pattern '^ollama( |$)'
         emit_result false false "Fallo al levantar Ollama. Revisa ${RUNTIME_DIR}/ollama-serve.log"
     fi
 }
@@ -392,14 +510,18 @@ ollama_stop_action() {
     local port
     port="$(safe_port "${2:-11434}" "11434")"
 
-    if ! ollama_running "$port"; then
+    if ! ollama_running_user "$port"; then
+        if service_foreign_running '(^|/)ollama( |$).*serve'; then
+            emit_result false false "Ollama esta corriendo con otro usuario (ej. root). No se puede apagar desde aqui."
+            return
+        fi
         emit_result true false "Ollama ya estaba apagado."
         return
     fi
 
-    pkill -x ollama >/dev/null 2>&1 || true
+    kill_user_processes_by_pattern '^ollama( |$)'
 
-    if wait_for_stopped 8000 ollama_running "$port"; then
+    if wait_for_stopped 8000 ollama_running_user "$port"; then
         emit_result true false "Ollama detenido."
     else
         emit_result false true "No se pudo detener Ollama."
@@ -420,14 +542,19 @@ openclaw_start_action() {
         return
     fi
 
-    if openclaw_running "$match"; then
+    if openclaw_running_user "$match"; then
         emit_result true true "OpenClaw ya esta activo."
+        return
+    fi
+
+    if service_foreign_running "$match"; then
+        emit_result false false "OpenClaw esta corriendo con otro usuario (ej. root). Detenlo fuera de IA Services."
         return
     fi
 
     nohup bash -lc "$start_cmd" >"${RUNTIME_DIR}/openclaw-gateway.log" 2>&1 &
 
-    if wait_for_running 12000 openclaw_running "$match"; then
+    if wait_for_running 12000 openclaw_running_user "$match"; then
         emit_result true true "OpenClaw activo."
     else
         emit_result false false "Fallo al levantar OpenClaw. Revisa ${RUNTIME_DIR}/openclaw-gateway.log"
@@ -441,12 +568,16 @@ openclaw_stop_action() {
     if [[ -n "$stop_cmd" ]]; then
         bash -lc "$stop_cmd" >/dev/null 2>&1 || true
     else
-        pkill -f -- "$match" >/dev/null 2>&1 || true
+        kill_user_processes_by_pattern "$match"
     fi
 
-    if wait_for_stopped 8000 openclaw_running "$match"; then
+    if wait_for_stopped 8000 openclaw_running_user "$match"; then
         emit_result true false "OpenClaw detenido."
     else
+        if service_foreign_running "$match"; then
+            emit_result false false "OpenClaw sigue activo con otro usuario (ej. root)."
+            return
+        fi
         emit_result false true "No se pudo detener OpenClaw."
     fi
 }
