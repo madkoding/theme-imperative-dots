@@ -25,6 +25,9 @@ Item {
     readonly property color mauve: _theme.mauve
     readonly property color peach: _theme.peach
     readonly property color sapphire: _theme.sapphire
+    readonly property color stateOnGreen: "#45d483"
+    readonly property color stateWarnYellow: "#f4bf4f"
+    readonly property color stateOffRed: "#f05f6b"
     readonly property int compactInputHeight: 30
 
     readonly property string helperScript: Quickshell.env("HOME") + "/.config/quickshell/widgets/ia/ia_services.sh"
@@ -81,10 +84,11 @@ Item {
         return p;
     }
 
-    function stateColor(state) {
-        if (state === "running") return root.green;
-        if (state === "starting") return root.yellow;
-        return root.red;
+    function stateColor(state, available, managed) {
+        if (state === "running") return root.stateOnGreen;
+        if (state === "starting" || state === "failed") return root.stateWarnYellow;
+        if (!managed) return root.stateWarnYellow;
+        return root.stateOffRed;
     }
 
     function stateLabel(state, available) {
@@ -672,7 +676,7 @@ Item {
                                         Layout.preferredWidth: 132
                                         Layout.fillWidth: false
                                         spacing: 8
-                                        Text { text: root.statusDotText(root.opencodeState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.opencodeState) }
+                                        Text { text: root.statusDotText(root.opencodeState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.opencodeState, root.opencodeAvailable, root.serviceManaged("opencode")) }
                                         Text { text: root.shortStateLabel(root.opencodeState, root.opencodeAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.opencodeSwitch
@@ -803,7 +807,7 @@ Item {
                                         Layout.preferredWidth: 132
                                         Layout.fillWidth: false
                                         spacing: 8
-                                        Text { text: root.statusDotText(root.ollamaState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.ollamaState) }
+                                        Text { text: root.statusDotText(root.ollamaState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.ollamaState, root.ollamaAvailable, root.serviceManaged("ollama")) }
                                         Text { text: root.shortStateLabel(root.ollamaState, root.ollamaAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.ollamaSwitch
@@ -945,7 +949,7 @@ Item {
                                         Layout.preferredWidth: 132
                                         Layout.fillWidth: false
                                         spacing: 8
-                                        Text { text: root.statusDotText(root.openclawState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.openclawState) }
+                                        Text { text: root.statusDotText(root.openclawState); font.family: "Iosevka Nerd Font"; font.pixelSize: 13; color: root.stateColor(root.openclawState, root.openclawAvailable, root.serviceManaged("openclaw")) }
                                         Text { text: root.shortStateLabel(root.openclawState, root.openclawAvailable); font.family: "Michroma"; font.pixelSize: 10; color: root.text }
                                         Switch {
                                             checked: root.openclawSwitch
