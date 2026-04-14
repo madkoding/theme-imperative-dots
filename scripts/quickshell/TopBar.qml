@@ -973,9 +973,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !parent.initAnimTrigger; interval: 0; onTriggered: parent.initAnimTrigger = true }
+                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 0; onTriggered: initAnimTrigger = true }
                         opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         Text { anchors.centerIn: parent; text: "󰚩"; font.family: "Iosevka Nerd Font"; font.pixelSize: 16; color: parent.isHovered ? mocha.mauve : mocha.text }
@@ -1001,9 +1001,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !parent.initAnimTrigger; interval: 0; onTriggered: parent.initAnimTrigger = true }
+                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 0; onTriggered: initAnimTrigger = true }
                         opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         Text { anchors.centerIn: parent; text: ""; font.family: "Iosevka Nerd Font"; font.pixelSize: 16; color: parent.isHovered ? mocha.blue : mocha.text }
@@ -1044,9 +1044,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !parent.initAnimTrigger; interval: 50; onTriggered: parent.initAnimTrigger = true }
+                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 0; onTriggered: initAnimTrigger = true }
                         opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         RowLayout { id: wifiLayoutRow; anchors.centerIn: parent; spacing: wifiText.visible ? 8 : 0
@@ -1094,9 +1094,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !parent.initAnimTrigger; interval: 100; onTriggered: parent.initAnimTrigger = true }
+                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 100; onTriggered: initAnimTrigger = true }
                         opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         RowLayout { id: btLayoutRow; anchors.centerIn: parent; spacing: btText.visible ? 8 : 0
@@ -1141,9 +1141,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !parent.initAnimTrigger; interval: 150; onTriggered: parent.initAnimTrigger = true }
+                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 150; onTriggered: initAnimTrigger = true }
                         opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         RowLayout { id: volLayoutRow; anchors.centerIn: parent; spacing: 8
@@ -1202,9 +1202,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !parent.initAnimTrigger; interval: 200; onTriggered: parent.initAnimTrigger = true }
+                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 200; onTriggered: initAnimTrigger = true }
                         opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: parent.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         RowLayout { id: batLayoutRow; anchors.centerIn: parent; spacing: 8
