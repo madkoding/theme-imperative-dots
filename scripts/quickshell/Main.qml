@@ -96,7 +96,7 @@ FloatingWindow {
     implicitHeight: height
 
     onIsVisibleChanged: {
-        if (isVisible) masterWindow.requestActivate();
+        if (isVisible) masterWindow.visible = true;
     }
 
     Item {
