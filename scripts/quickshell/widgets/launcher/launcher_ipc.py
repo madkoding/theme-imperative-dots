@@ -8,13 +8,14 @@ from typing import Any
 
 DAEMON_SOCKET_PATH = Path.home() / ".cache/quickshell/launcher/daemon.sock"
 SOCKET_TIMEOUT = 2.0
+GET_APPS_TIMEOUT = 12.0
 
 
-def _send_command(command: dict[str, str]) -> dict[str, Any]:
+def _send_command(command: dict[str, str], timeout: float | None = None) -> dict[str, Any]:
     if DAEMON_SOCKET_PATH.exists():
         try:
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.settimeout(SOCKET_TIMEOUT)
+            sock.settimeout(timeout if timeout is not None else SOCKET_TIMEOUT)
             sock.connect(str(DAEMON_SOCKET_PATH))
             sock.sendall((json.dumps(command) + "\n").encode("utf-8"))
             data = b""
@@ -34,7 +35,7 @@ def _send_command(command: dict[str, str]) -> dict[str, Any]:
 
 
 def get_apps() -> list[dict]:
-    result = _send_command({"cmd": "GET_APPS"})
+    result = _send_command({"cmd": "GET_APPS"}, timeout=GET_APPS_TIMEOUT)
     if result.get("status") == "ok":
         return result.get("apps", [])
     return []

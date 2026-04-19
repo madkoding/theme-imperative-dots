@@ -260,15 +260,24 @@ start_launcher_cache_daemon() {
     local launcher_dir="${TARGET_QUICKSHELL}/widgets/launcher"
     local ipc_script="${launcher_dir}/launcher_ipc.py"
     local daemon_script="${launcher_dir}/launcher_cache_daemon.py"
+    local cache_dir="${HOME}/.cache/quickshell/launcher"
 
     if [[ ! -f "${ipc_script}" || ! -f "${daemon_script}" ]]; then
         return 0
+    fi
+
+    mkdir -p "${cache_dir}"
+
+    if [[ ! -s "${cache_dir}/apps.json" ]]; then
+        python3 "${launcher_dir}/list_apps.py" > "${cache_dir}/apps.json" 2>/dev/null || true
     fi
 
     if python3 "${ipc_script}" ping >/dev/null 2>&1; then
         return 0
     fi
 
+    pkill -f "launcher_cache_daemon.py" >/dev/null 2>&1 || true
+    rm -f "${cache_dir}/daemon.sock" "${cache_dir}/daemon.pid"
     nohup python3 -u "${daemon_script}" >/dev/null 2>&1 &
 }
 

@@ -680,7 +680,12 @@ Item {
         if (app.terminal === true)
             command = "${TERMINAL:-foot} -e bash -lc " + shellQuote(command);
 
-        Quickshell.execDetached(["bash", "-lc", "setsid -f " + command + " >/dev/null 2>&1"]);
+        let escapedCommand = shellQuote(command);
+        Quickshell.execDetached([
+            "bash",
+            "-lc",
+            "if command -v hyprctl >/dev/null 2>&1 && [ -n \"${HYPRLAND_INSTANCE_SIGNATURE:-}\" ]; then hyprctl dispatch exec " + escapedCommand + "; else setsid -f bash -lc " + escapedCommand + " >/dev/null 2>&1; fi"
+        ]);
         closeLauncher();
     }
 
