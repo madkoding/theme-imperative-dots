@@ -961,6 +961,7 @@ PanelWindow {
 
                     // IA Services
                     Rectangle {
+                        id: iaPill
                         property bool isHovered: iaMouse.containsMouse
                         color: isHovered ? Qt.rgba(mocha.surface1.r, mocha.surface1.g, mocha.surface1.b, 0.6) : Qt.rgba(mocha.surface0.r, mocha.surface0.g, mocha.surface0.b, 0.4)
                         radius: 10; Layout.preferredHeight: sysLayout.pillHeight;
@@ -973,9 +974,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 0; onTriggered: initAnimTrigger = true }
-                        opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        Timer { running: rightLayout.showLayout && !iaPill.initAnimTrigger; interval: 0; onTriggered: iaPill.initAnimTrigger = true }
+                        opacity: iaPill.initAnimTrigger ? 1 : 0
+                        transform: Translate { y: iaPill.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         Text { anchors.centerIn: parent; text: "󰚩"; font.family: "Iosevka Nerd Font"; font.pixelSize: 16; color: parent.isHovered ? mocha.mauve : mocha.text }
@@ -989,6 +990,7 @@ PanelWindow {
 
                     // Help (keybinds)
                     Rectangle {
+                        id: helpPill
                         property bool isHovered: helpMouse.containsMouse
                         color: isHovered ? Qt.rgba(mocha.surface1.r, mocha.surface1.g, mocha.surface1.b, 0.6) : Qt.rgba(mocha.surface0.r, mocha.surface0.g, mocha.surface0.b, 0.4)
                         radius: 10; Layout.preferredHeight: sysLayout.pillHeight;
@@ -1001,9 +1003,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 0; onTriggered: initAnimTrigger = true }
-                        opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        Timer { running: rightLayout.showLayout && !helpPill.initAnimTrigger; interval: 0; onTriggered: helpPill.initAnimTrigger = true }
+                        opacity: helpPill.initAnimTrigger ? 1 : 0
+                        transform: Translate { y: helpPill.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         Text { anchors.centerIn: parent; text: ""; font.family: "Iosevka Nerd Font"; font.pixelSize: 16; color: parent.isHovered ? mocha.blue : mocha.text }
@@ -1044,9 +1046,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 0; onTriggered: initAnimTrigger = true }
-                        opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        Timer { running: rightLayout.showLayout && !wifiPill.initAnimTrigger; interval: 0; onTriggered: wifiPill.initAnimTrigger = true }
+                        opacity: wifiPill.initAnimTrigger ? 1 : 0
+                        transform: Translate { y: wifiPill.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         RowLayout { id: wifiLayoutRow; anchors.centerIn: parent; spacing: wifiText.visible ? 8 : 0
@@ -1094,9 +1096,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 100; onTriggered: initAnimTrigger = true }
-                        opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        Timer { running: rightLayout.showLayout && !btPill.initAnimTrigger; interval: 100; onTriggered: btPill.initAnimTrigger = true }
+                        opacity: btPill.initAnimTrigger ? 1 : 0
+                        transform: Translate { y: btPill.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         RowLayout { id: btLayoutRow; anchors.centerIn: parent; spacing: btText.visible ? 8 : 0
@@ -1115,6 +1117,7 @@ PanelWindow {
 
                     // Volume
                     Rectangle {
+                        id: volPill
                         property bool isHovered: volMouse.containsMouse
                         color: isHovered ? Qt.rgba(mocha.surface1.r, mocha.surface1.g, mocha.surface1.b, 0.6) : Qt.rgba(mocha.surface0.r, mocha.surface0.g, mocha.surface0.b, 0.4)
                         radius: 10; Layout.preferredHeight: sysLayout.pillHeight;
@@ -1141,9 +1144,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 150; onTriggered: initAnimTrigger = true }
-                        opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        Timer { running: rightLayout.showLayout && !volPill.initAnimTrigger; interval: 150; onTriggered: volPill.initAnimTrigger = true }
+                        opacity: volPill.initAnimTrigger ? 1 : 0
+                        transform: Translate { y: volPill.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         RowLayout { id: volLayoutRow; anchors.centerIn: parent; spacing: 8
@@ -1176,6 +1179,7 @@ PanelWindow {
 
                     // Battery
                     Rectangle {
+                        id: batPill
                         property bool isHovered: batMouse.containsMouse
                         color: isHovered ? Qt.rgba(mocha.surface1.r, mocha.surface1.g, mocha.surface1.b, 0.6) : Qt.rgba(mocha.surface0.r, mocha.surface0.g, mocha.surface0.b, 0.4); 
                         radius: 10; Layout.preferredHeight: sysLayout.pillHeight;
@@ -1202,9 +1206,9 @@ PanelWindow {
                         Behavior on color { ColorAnimation { duration: 200 } }
 
                         property bool initAnimTrigger: false
-                        Timer { running: rightLayout.showLayout && !initAnimTrigger; interval: 200; onTriggered: initAnimTrigger = true }
-                        opacity: initAnimTrigger ? 1 : 0
-                        transform: Translate { y: initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
+                        Timer { running: rightLayout.showLayout && !batPill.initAnimTrigger; interval: 200; onTriggered: batPill.initAnimTrigger = true }
+                        opacity: batPill.initAnimTrigger ? 1 : 0
+                        transform: Translate { y: batPill.initAnimTrigger ? 0 : 15; Behavior on y { NumberAnimation { duration: 500; easing.type: Easing.OutBack } } }
                         Behavior on opacity { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
                         RowLayout { id: batLayoutRow; anchors.centerIn: parent; spacing: 8
