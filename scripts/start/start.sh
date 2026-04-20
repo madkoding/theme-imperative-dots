@@ -263,11 +263,34 @@ start_launcher_cache_daemon() {
     local daemon_script="${launcher_dir}/launcher_cache_daemon.py"
     local cache_dir="${HOME}/.cache/quickshell/launcher"
 
+    prewarm_launcher_cache_file() {
+        local prewarm_launcher_dir="$1"
+        local prewarm_cache_dir="$2"
+        local lock_dir="${prewarm_cache_dir}/.prewarm-lock"
+
+        (
+            local tmp_file="${prewarm_cache_dir}/apps.json.tmp.$$"
+            if ! mkdir "${lock_dir}" 2>/dev/null; then
+                exit 0
+            fi
+
+            trap 'rm -f "${tmp_file}"; rmdir "${lock_dir}" 2>/dev/null || true' EXIT
+
+            if python3 "${prewarm_launcher_dir}/list_apps.py" > "${tmp_file}" 2>/dev/null && [[ -s "${tmp_file}" ]]; then
+                mv "${tmp_file}" "${prewarm_cache_dir}/apps.json"
+            fi
+        ) &
+    }
+
     if [[ ! -f "${ipc_script}" || ! -f "${daemon_script}" ]]; then
         return 0
     fi
 
     mkdir -p "${cache_dir}"
+
+    if [[ ! -s "${cache_dir}/apps.json" ]]; then
+        prewarm_launcher_cache_file "${launcher_dir}" "${cache_dir}"
+    fi
 
     if python3 "${ipc_script}" ping >/dev/null 2>&1; then
         python3 "${ipc_script}" reload >/dev/null 2>&1 || true
@@ -285,7 +308,12 @@ start_launcher_cache_daemon() {
         sleep 0.1
     done
 
-    python3 "${ipc_script}" reload >/dev/null 2>&1 || true
+    if python3 "${ipc_script}" ping >/dev/null 2>&1; then
+        python3 "${ipc_script}" reload >/dev/null 2>&1 || true
+    else
+        log_warn "Launcher cache daemon unavailable, using direct prewarm fallback"
+        prewarm_launcher_cache_file "${launcher_dir}" "${cache_dir}"
+    fi
 }
 
 launch_quickshell() {

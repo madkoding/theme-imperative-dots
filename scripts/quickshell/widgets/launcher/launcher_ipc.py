@@ -66,11 +66,15 @@ if __name__ == "__main__":
     if cmd == "get_apps":
         apps = get_apps()
         print(json.dumps(apps, ensure_ascii=False))
+        sys.exit(0)
     elif cmd == "reload":
         success = reload_cache()
         print("OK" if success else "FAILED")
+        sys.exit(0 if success else 1)
     elif cmd == "ping":
-        print("OK" if ping_daemon() else "FAILED")
+        success = ping_daemon()
+        print("OK" if success else "FAILED")
+        sys.exit(0 if success else 1)
     else:
         print(f"Unknown command: {cmd}")
         sys.exit(1)
