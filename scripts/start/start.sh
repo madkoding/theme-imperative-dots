@@ -116,7 +116,8 @@ prepare_user_runtime() {
     mkdir -p "${XDG_CONF_HOME}/imperative-dots"
 
     if [[ -e "${TARGET_HYPR_SCRIPTS}" && ! -f "${OWNERSHIP_MARKER}" ]]; then
-        local backup_dir="${XDG_CONF_HOME}/imperative-dots/hypr-scripts-backup-$(date +%Y%m%d-%H%M%S)"
+        local backup_dir
+        backup_dir="${XDG_CONF_HOME}/imperative-dots/hypr-scripts-backup-$(date +%Y%m%d-%H%M%S)"
         log_warn "Found existing ${TARGET_HYPR_SCRIPTS} without ownership marker; backing up to ${backup_dir}"
         mkdir -p "$(dirname "${backup_dir}")"
         cp -a "${TARGET_HYPR_SCRIPTS}" "${backup_dir}"
@@ -268,17 +269,23 @@ start_launcher_cache_daemon() {
 
     mkdir -p "${cache_dir}"
 
-    if [[ ! -s "${cache_dir}/apps.json" ]]; then
-        python3 "${launcher_dir}/list_apps.py" > "${cache_dir}/apps.json" 2>/dev/null || true
-    fi
-
     if python3 "${ipc_script}" ping >/dev/null 2>&1; then
+        python3 "${ipc_script}" reload >/dev/null 2>&1 || true
         return 0
     fi
 
     pkill -f "launcher_cache_daemon.py" >/dev/null 2>&1 || true
     rm -f "${cache_dir}/daemon.sock" "${cache_dir}/daemon.pid"
     nohup python3 -u "${daemon_script}" >/dev/null 2>&1 &
+
+    for _ in {1..20}; do
+        if python3 "${ipc_script}" ping >/dev/null 2>&1; then
+            break
+        fi
+        sleep 0.1
+    done
+
+    python3 "${ipc_script}" reload >/dev/null 2>&1 || true
 }
 
 launch_quickshell() {

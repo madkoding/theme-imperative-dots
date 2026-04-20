@@ -34,6 +34,8 @@ Item {
     property bool daemonGetSucceeded: false
     property bool daemonStartRequested: false
     property int daemonPingAttempts: 0
+    property int daemonGetEmptyRetries: 0
+    readonly property int daemonGetMaxRetries: 20
     readonly property int compactCardWidth: Math.max(120, Math.round(toNumber(cfg("ui", "compactCardWidth", 176), 176)))
     readonly property int expandedCardWidth: Math.max(220, Math.round(toNumber(cfg("ui", "expandedCardWidth", 360), 360)))
     readonly property bool showBadges: toBool(cfg("ui", "showBadges", true), true)
@@ -510,6 +512,12 @@ Item {
             daemonCheckProcess.running = true;
     }
 
+    function warmLauncherCache() {
+        ensureDaemonRunning();
+        if (!loadAppsProcess.running && !daemonGetAppsProcess.running)
+            refreshApps();
+    }
+
     function startDaemon() {
         if (daemonStartRequested)
             return;
@@ -702,7 +710,7 @@ Item {
         loadHiddenConfig();
         loadFrequencyData();
         loadStateData();
-        ensureDaemonRunning();
+        warmLauncherCache();
         focusTimer.start();
     }
 
@@ -770,6 +778,20 @@ Item {
 
             if (root.daemonPingAttempts >= 12)
                 stop();
+        }
+    }
+
+    Timer {
+        id: daemonGetRetryTimer
+        interval: 250
+        repeat: false
+        running: false
+
+        onTriggered: {
+            if (root.daemonAvailable && !daemonGetAppsProcess.running && !loadAppsProcess.running) {
+                root.loading = true;
+                daemonGetAppsProcess.running = true;
+            }
         }
     }
 
@@ -891,6 +913,7 @@ Item {
         onExited: {
             if (root.daemonPingResult) {
                 root.daemonAvailable = true;
+                root.daemonGetEmptyRetries = 0;
                 daemonPingRetryTimer.stop();
                 root.refreshApps();
             } else {
@@ -929,6 +952,7 @@ Item {
                 root.rawApps = parsed;
                 root.daemonGetSucceeded = true;
                 root.daemonAvailable = true;
+                root.daemonGetEmptyRetries = 0;
                 root.initialLoadComplete = true;
                 root.loading = false;
                 root.applyFilter();
@@ -942,8 +966,16 @@ Item {
         onExited: {
             root.loading = false;
             if (!root.daemonGetSucceeded) {
-                root.daemonAvailable = false;
-                if (!loadAppsProcess.running) {
+                if (root.daemonAvailable) {
+                    if (root.daemonGetEmptyRetries < root.daemonGetMaxRetries) {
+                        root.daemonGetEmptyRetries += 1;
+                        root.loading = true;
+                        daemonGetRetryTimer.restart();
+                    } else if (!loadAppsProcess.running) {
+                        root.loading = true;
+                        loadAppsProcess.running = true;
+                    }
+                } else if (!loadAppsProcess.running) {
                     root.loading = true;
                     loadAppsProcess.running = true;
                 }

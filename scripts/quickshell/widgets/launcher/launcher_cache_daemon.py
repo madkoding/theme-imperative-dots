@@ -570,18 +570,15 @@ def handle_client(conn: socket.socket) -> None:
                             if not isinstance(apps, list):
                                 apps = []
                             if len(apps) == 0:
-                                apps = list_apps()
-                                threading.Thread(target=regenerate_cache, daemon=True).start()
+                                _reload_event.set()
                             response = {"status": "ok", "apps": apps}
                         except Exception as e:
                             response = {"status": "error", "msg": str(e)}
                     else:
-                        apps = list_apps()
-                        if len(apps) > 0:
-                            threading.Thread(target=regenerate_cache, daemon=True).start()
-                        response = {"status": "ok", "apps": apps}
+                        _reload_event.set()
+                        response = {"status": "ok", "apps": []}
                 elif cmd == "RELOAD":
-                    threading.Thread(target=regenerate_cache, daemon=True).start()
+                    _reload_event.set()
                     response = {"status": "ok"}
                 elif cmd == "GET_WATCH_PATHS":
                     response = {"status": "ok", "paths": [str(p) for p in get_watch_paths()]}
@@ -723,11 +720,11 @@ def main() -> None:
         try:
             age = time.time() - CACHE_FILE.stat().st_mtime
             if age > 86400:
-                threading.Thread(target=regenerate_cache, daemon=True).start()
+                _reload_event.set()
         except Exception:
             pass
     else:
-        threading.Thread(target=regenerate_cache, daemon=True).start()
+        _reload_event.set()
     threading.Thread(target=reload_watcher, daemon=True).start()
     if INOTIFY_AVAILABLE:
         threading.Thread(target=inotify_watcher, daemon=True).start()
