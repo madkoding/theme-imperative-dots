@@ -678,13 +678,14 @@ Item {
         recordSelection(app.id, app.name);
 
         if (app.terminal === true)
-            command = "${TERMINAL:-foot} -e bash -lc " + shellQuote(command);
+            command = "${TERMINAL:-foot} -e " + command;
 
-        let escapedCommand = shellQuote(command);
         Quickshell.execDetached([
-            "bash",
-            "-lc",
-            "setsid -f bash -lc " + escapedCommand + " >/dev/null 2>&1"
+            "setsid",
+            "-f",
+            "sh",
+            "-c",
+            command
         ]);
         closeLauncher();
     }
@@ -1437,12 +1438,22 @@ Item {
                             }
 
                             root.hideContextMenu();
-                            if (card.current)
-                                root.launchSelected();
-                            else {
-                                root.selectedIndex = index;
-                                listView.currentIndex = index;
-                            }
+                            let directCommand = String(model.exec || "").trim();
+                            if (directCommand === "")
+                                return;
+
+                            if (model.terminal === true)
+                                directCommand = "${TERMINAL:-foot} -e " + directCommand;
+
+                            root.recordSelection(model.id, model.name);
+                            Quickshell.execDetached([
+                                "setsid",
+                                "-f",
+                                "sh",
+                                "-c",
+                                directCommand
+                            ]);
+                            root.closeLauncher();
                         }
                     }
                 }
